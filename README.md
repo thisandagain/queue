@@ -1,11 +1,11 @@
 ## Queue
 #### A background job queue for iOS.
 
-In attempting to keep things [DRY](http://en.wikipedia.org/wiki/Don't_repeat_yourself), EDQueue was created to address the fair amount of boilerplate that often gets created to deal with writing data to disk within iOS applications in a performant manner. Disk I/O within iOS is synchronous and so much of this boilerplate is often written to improve performance by moving I/O to a background thread. EDQueue accomplishes this by transforming each write instance into a `NSOperation` which is managed by a single `NSOperationQueue`. All of this is done in the background while providing high-level methods to the user via categories. 
+While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html). All you need to do is handle the job within the provided delegate method and EDQueue handles the rest.
 
 **EDQueue tries to provide three things:**
 - A simple interface for handling background job queues across an application.
-- A highly flexible and familiar convention for defining tasks.
+- A highly flexible and familiar convention for defining a generic task.
 - Speed and safety.
 
 ## Getting Started
@@ -37,7 +37,7 @@ YourAppDelegate.m
 }
 ```
 
-Each job that is added to EDQueue is handled within a background thread using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and thus threading of jobs is handled for you. All you need to do is handle the job within the provided delegate method and EDQueue handles the rest. In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
+In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
 - `EDQueueResultSuccess`: Used to indicate that a job has completed successfully
 - `EDQueueResultFail`: Used to indicate that a job has failed and should be retried (up to the specified `retryLimit`)
 - `EDQueueResultCritical`: Used to indicate that a job has failed critically and the queue should be stopped
