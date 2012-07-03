@@ -97,8 +97,13 @@
     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidStop", @"name", nil, @"data", nil] waitUntilDone:false];
 }
 
-#pragma mark - Status loop
+#pragma mark - Private methods
 
+/**
+ * Checks the queue for available jobs, sends them to the processor delegate, and handles the response.
+ *
+ * @return {void}
+ */
 - (void)tick
 {
     dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
@@ -139,7 +144,7 @@
             }
             
             // Check drain
-            if ([self.queue count] == 0) {
+            if ([self.queue count] == 0 && active == 0) {
                 [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidDrain", @"name", nil, @"data", nil] waitUntilDone:false];
             }
         }
@@ -147,13 +152,27 @@
     });
 }
 
-#pragma mark - Private methods
-
+/**
+ * Posts a notification (used to keep notifications on the main thread).
+ *
+ * @param {NSDictionary} Object
+ *                          - name: Notification name
+ *                          - data: Data to be attached to notification
+ *
+ * @return {void}
+ */
 - (void)postNotification:(NSDictionary *)object
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"]];
 }
 
+/**
+ * Writes an error message to the log.
+ *
+ * @param {NSString} Message
+ *
+ * @return {void}
+ */
 - (void)errorWithMessage:(NSString *)message
 {
     NSLog(@"EDQueue Error: %@", message);
