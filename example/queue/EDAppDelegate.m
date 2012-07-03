@@ -43,12 +43,12 @@
     sleep(1);
     
     if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-        return kEDQueueResultSuccess;
+        return EDQueueResultSuccess;
     } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-        return kEDQueueResultFail;
+        return EDQueueResultFail;
     }
     
-    return kEDQueueResultCritical;
+    return EDQueueResultCritical;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

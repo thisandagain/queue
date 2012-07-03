@@ -124,10 +124,10 @@
             
             // Check result
             switch (result) {
-                case kEDQueueResultSuccess:
+                case EDQueueResultSuccess:
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidSucceed", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
-                case kEDQueueResultFail:
+                case EDQueueResultFail:
                     ;NSUInteger currentAttempt = [[job objectForKey:@"attempt"] intValue] + 1;
                     if (currentAttempt < self.retryLimit)
                     {
@@ -136,10 +136,10 @@
                     }
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
-                case kEDQueueResultCritical:
+                case EDQueueResultCritical:
                     [self errorWithMessage:@"Critical error. Stopping queue..."];
-                    [self stop];
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
+                    [self stop];
                     break;
             }
             

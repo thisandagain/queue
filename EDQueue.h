@@ -19,9 +19,9 @@ _sharedObject = block(); \
 return _sharedObject; \
 
 typedef enum {
-    kEDQueueResultSuccess,
-    kEDQueueResultFail,
-    kEDQueueResultCritical
+    EDQueueResultSuccess,
+    EDQueueResultFail,
+    EDQueueResultCritical
 } EDQueueResult;
 
 //
