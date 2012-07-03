@@ -128,17 +128,17 @@
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidSucceed", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
                 case EDQueueResultFail:
+                    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:true];
                     ;NSUInteger currentAttempt = [[job objectForKey:@"attempt"] intValue] + 1;
                     if (currentAttempt < self.retryLimit)
                     {
                         [job setValue:[NSNumber numberWithInt:currentAttempt] forKey:@"attempt"];
                         (self.retryFailureImmediately) ? [self.queue insertObject:job atIndex:0] : [self.queue addObject:job];
                     }
-                    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
                 case EDQueueResultCritical:
-                    [self errorWithMessage:@"Critical error. Stopping queue..."];
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
+                    [self errorWithMessage:@"Critical error. Stopping queue..."];
                     [self stop];
                     break;
             }
