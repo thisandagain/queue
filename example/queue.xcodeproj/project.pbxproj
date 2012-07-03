@@ -1,0 +1,296 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C395D50D159E56760041510C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50C159E56760041510C /* UIKit.framework */; };
+		C395D50F159E56760041510C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50E159E56760041510C /* Foundation.framework */; };
+		C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D510159E56760041510C /* CoreGraphics.framework */; };
+		C395D517159E56760041510C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C395D515159E56760041510C /* InfoPlist.strings */; };
+		C395D519159E56760041510C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C395D518159E56760041510C /* main.m */; };
+		C395D51D159E56760041510C /* EDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C395D51C159E56760041510C /* EDAppDelegate.m */; };
+		C395D520159E56760041510C /* EDViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C395D51F159E56760041510C /* EDViewController.m */; };
+		C395D523159E56760041510C /* EDViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C395D521159E56760041510C /* EDViewController.xib */; };
+		C395D52F159E57520041510C /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = C395D52D159E57520041510C /* LICENSE.md */; };
+		C395D530159E57520041510C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C395D52E159E57520041510C /* README.md */; };
+		C395D534159E57880041510C /* EDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = C395D533159E57880041510C /* EDQueue.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C395D508159E56760041510C /* queue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = queue.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C395D50C159E56760041510C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C395D50E159E56760041510C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C395D510159E56760041510C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		C395D514159E56760041510C /* queue-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "queue-Info.plist"; sourceTree = "<group>"; };
+		C395D516159E56760041510C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C395D518159E56760041510C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C395D51A159E56760041510C /* queue-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "queue-Prefix.pch"; sourceTree = "<group>"; };
+		C395D51B159E56760041510C /* EDAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EDAppDelegate.h; sourceTree = "<group>"; };
+		C395D51C159E56760041510C /* EDAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EDAppDelegate.m; sourceTree = "<group>"; };
+		C395D51E159E56760041510C /* EDViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EDViewController.h; sourceTree = "<group>"; };
+		C395D51F159E56760041510C /* EDViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EDViewController.m; sourceTree = "<group>"; };
+		C395D522159E56760041510C /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/EDViewController.xib; sourceTree = "<group>"; };
+		C395D52D159E57520041510C /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
+		C395D52E159E57520041510C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		C395D532159E57880041510C /* EDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDQueue.h; path = ../EDQueue.h; sourceTree = "<group>"; };
+		C395D533159E57880041510C /* EDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDQueue.m; path = ../EDQueue.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C395D505159E56760041510C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C395D50D159E56760041510C /* UIKit.framework in Frameworks */,
+				C395D50F159E56760041510C /* Foundation.framework in Frameworks */,
+				C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C395D4FD159E56760041510C = {
+			isa = PBXGroup;
+			children = (
+				C395D532159E57880041510C /* EDQueue.h */,
+				C395D533159E57880041510C /* EDQueue.m */,
+				C395D52D159E57520041510C /* LICENSE.md */,
+				C395D52E159E57520041510C /* README.md */,
+				C395D512159E56760041510C /* queue */,
+				C395D50B159E56760041510C /* Frameworks */,
+				C395D509159E56760041510C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C395D509159E56760041510C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C395D508159E56760041510C /* queue.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C395D50B159E56760041510C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C395D50C159E56760041510C /* UIKit.framework */,
+				C395D50E159E56760041510C /* Foundation.framework */,
+				C395D510159E56760041510C /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C395D512159E56760041510C /* queue */ = {
+			isa = PBXGroup;
+			children = (
+				C395D51B159E56760041510C /* EDAppDelegate.h */,
+				C395D51C159E56760041510C /* EDAppDelegate.m */,
+				C395D51E159E56760041510C /* EDViewController.h */,
+				C395D51F159E56760041510C /* EDViewController.m */,
+				C395D521159E56760041510C /* EDViewController.xib */,
+				C395D513159E56760041510C /* Supporting Files */,
+			);
+			path = queue;
+			sourceTree = "<group>";
+		};
+		C395D513159E56760041510C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C395D514159E56760041510C /* queue-Info.plist */,
+				C395D515159E56760041510C /* InfoPlist.strings */,
+				C395D518159E56760041510C /* main.m */,
+				C395D51A159E56760041510C /* queue-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C395D507159E56760041510C /* queue */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C395D526159E56760041510C /* Build configuration list for PBXNativeTarget "queue" */;
+			buildPhases = (
+				C395D504159E56760041510C /* Sources */,
+				C395D505159E56760041510C /* Frameworks */,
+				C395D506159E56760041510C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = queue;
+			productName = queue;
+			productReference = C395D508159E56760041510C /* queue.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C395D4FF159E56760041510C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = ED;
+				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "DIY, Co.";
+			};
+			buildConfigurationList = C395D502159E56760041510C /* Build configuration list for PBXProject "queue" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C395D4FD159E56760041510C;
+			productRefGroup = C395D509159E56760041510C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C395D507159E56760041510C /* queue */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C395D506159E56760041510C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C395D517159E56760041510C /* InfoPlist.strings in Resources */,
+				C395D523159E56760041510C /* EDViewController.xib in Resources */,
+				C395D52F159E57520041510C /* LICENSE.md in Resources */,
+				C395D530159E57520041510C /* README.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C395D504159E56760041510C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C395D519159E56760041510C /* main.m in Sources */,
+				C395D51D159E56760041510C /* EDAppDelegate.m in Sources */,
+				C395D520159E56760041510C /* EDViewController.m in Sources */,
+				C395D534159E57880041510C /* EDQueue.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C395D515159E56760041510C /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C395D516159E56760041510C /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		C395D521159E56760041510C /* EDViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C395D522159E56760041510C /* en */,
+			);
+			name = EDViewController.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C395D524159E56760041510C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C395D525159E56760041510C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C395D527159E56760041510C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "queue/queue-Prefix.pch";
+				INFOPLIST_FILE = "queue/queue-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		C395D528159E56760041510C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "queue/queue-Prefix.pch";
+				INFOPLIST_FILE = "queue/queue-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C395D502159E56760041510C /* Build configuration list for PBXProject "queue" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C395D524159E56760041510C /* Debug */,
+				C395D525159E56760041510C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C395D526159E56760041510C /* Build configuration list for PBXNativeTarget "queue" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C395D527159E56760041510C /* Debug */,
+				C395D528159E56760041510C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C395D4FF159E56760041510C /* Project object */;
+}
