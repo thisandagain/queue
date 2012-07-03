@@ -82,6 +82,7 @@
 - (void)start
 {
     self.timer = [NSTimer scheduledTimerWithTimeInterval:self.statusInterval target:self selector:@selector(tick) userInfo:nil repeats:true];
+    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidStart", @"name", nil, @"data", nil] waitUntilDone:false];
 }
 
 /**
@@ -93,6 +94,7 @@
 {
     [self.timer invalidate];
     self.timer = nil;
+    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidStop", @"name", nil, @"data", nil] waitUntilDone:false];
 }
 
 #pragma mark - Status loop
@@ -118,21 +120,27 @@
             // Check result
             switch (result) {
                 case kEDQueueResultSuccess:
-                    NSLog(@"Win!!!!");
+                    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidSucceed", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
                 case kEDQueueResultFail:
-                    NSLog(@"FAIL!!!");
-                    NSUInteger currentAttempt = [[job objectForKey:@"attempt"] intValue] + 1;
+                    ;NSUInteger currentAttempt = [[job objectForKey:@"attempt"] intValue] + 1;
                     if (currentAttempt < self.retryLimit)
                     {
                         [job setValue:[NSNumber numberWithInt:currentAttempt] forKey:@"attempt"];
                         (self.retryFailureImmediately) ? [self.queue insertObject:job atIndex:0] : [self.queue addObject:job];
                     }
+                    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
                 case kEDQueueResultCritical:
                     [self errorWithMessage:@"Critical error. Stopping queue..."];
                     [self stop];
+                    [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
                     break;
+            }
+            
+            // Check drain
+            if ([self.queue count] == 0) {
+                [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidDrain", @"name", nil, @"data", nil] waitUntilDone:false];
             }
         }
         
@@ -140,6 +148,11 @@
 }
 
 #pragma mark - Private methods
+
+- (void)postNotification:(NSDictionary *)object
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"]];
+}
 
 - (void)errorWithMessage:(NSString *)message
 {
