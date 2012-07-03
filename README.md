@@ -14,7 +14,7 @@ The easiest way to get going with EDQueue is to take a look at the included exam
 In order to include EDQueue in your project, you'll want to add the entirety of the `queue` directory to your project minus the example project. EDQueue is built on top of foundation libraries and so no additional frameworks are needed.
 
 ## Setup
-EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all proceesed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate:
+EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all processed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate:
 
 YourAppDelegate.h
 ```objective-c
@@ -35,6 +35,11 @@ YourAppDelegate.m
     NSLog(@"Hey look it's a job! %@", job);
     return EDQueueResultSuccess;
 }
+```
+
+SomewhereElse.m
+```objective-c
+[[EDQueue sharedInstance] enqueueWithData:kitty forTask:@"nyancat"];
 ```
 
 In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
@@ -84,7 +89,7 @@ EDQueueJobDidFail
 ---
 
 ## Notes
-EDQueue still has some additional features that I would like to add. Some of these will most certainly be implemented in the near future which may change the interface. I use [semver](http://semver.org/) versioning to help users know when to expect backward incompatable changes. If you have something that you would like to see included please create an issue or send along a pull request!
+EDQueue still has some additional features that I would like to add. Some of these will most certainly be implemented in the near future which may change the interface. I use [semver](http://semver.org/) versioning to help users know when to expect backward incompatible changes. If you have something that you would like to see included please create an issue or send along a pull request!
 
 ## iOS Support
 EDQueue is tested on iOS 5 and up. Older versions of iOS may work but are not currently supported.
