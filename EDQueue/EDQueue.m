@@ -44,7 +44,7 @@
     if (self)
     {
         _concurrencyLimit           = 2;
-        _statusInterval             = 0.03f;
+        _statusInterval             = 0.10f;    // 10 fps
         _retryFailureImmediately    = true;
         _retryLimit                 = 4;
         
@@ -82,6 +82,7 @@
 - (void)start
 {
     self.timer = [NSTimer scheduledTimerWithTimeInterval:self.statusInterval target:self selector:@selector(tick) userInfo:nil repeats:true];
+    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueDidStart", @"name", nil, @"data", nil] waitUntilDone:false];
 }
 
@@ -138,8 +139,7 @@
                     break;
                 case EDQueueResultCritical:
                     [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
-                    [self errorWithMessage:@"Critical error. Stopping queue..."];
-                    [self stop];
+                    [self errorWithMessage:@"Critical error. Job canceled."];
                     break;
             }
             
