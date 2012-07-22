@@ -45,7 +45,7 @@ SomewhereElse.m
 In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
 - `EDQueueResultSuccess`: Used to indicate that a job has completed successfully
 - `EDQueueResultFail`: Used to indicate that a job has failed and should be retried (up to the specified `retryLimit`)
-- `EDQueueResultCritical`: Used to indicate that a job has failed critically and the queue should be stopped
+- `EDQueueResultCritical`: Used to indicate that a job has failed critically and should not be attempted again
 
 ---
 

@@ -36,8 +36,8 @@
 		C395D522159E56760041510C /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/EDViewController.xib; sourceTree = "<group>"; };
 		C395D52D159E57520041510C /* LICENSE.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 		C395D52E159E57520041510C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		C395D532159E57880041510C /* EDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDQueue.h; path = ../EDQueue.h; sourceTree = "<group>"; };
-		C395D533159E57880041510C /* EDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDQueue.m; path = ../EDQueue.m; sourceTree = "<group>"; };
+		C395D532159E57880041510C /* EDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDQueue.h; path = ../EDQueue/EDQueue.h; sourceTree = "<group>"; };
+		C395D533159E57880041510C /* EDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDQueue.m; path = ../EDQueue/EDQueue.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
