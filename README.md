@@ -1,21 +1,13 @@
 ## Queue
 #### A persistent background job queue for iOS.
 
-While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and [SQLLite3](http://www.sqlite.org/). All you need to do is handle the jobs within the provided delegate method and EDQueue handles the rest.
-
-**EDQueue tries to provide three things:**
-- A simple interface for handling background job queues across an application.
-- Job queue persistence between application sessions.
-- A highly flexible and familiar convention for defining a generic task.
-- Speed and safety.
+While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. **EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and [SQLLite3](http://www.sqlite.org/). All you need to do is handle the jobs within the provided delegate method and EDQueue handles the rest.**
 
 ### Getting Started
-The easiest way to get going with EDQueue is to take a look at the included example application. The XCode project file can be found in `example > queue.xcodeproj`.
-
-In order to include EDQueue in your project, you'll want to add the entirety of the `queue` directory to your project minus the example project. EDQueue is built on top of foundation libraries and so no additional frameworks are needed.
+The easiest way to get going with EDQueue is to take a look at the included example application. The XCode project file can be found in `Project > queue.xcodeproj`.
 
 ### Setup
-EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all processed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate:
+EDQueue needs both `libsqlite3.0.dylib` and [FMDB](https://github.com/ccgus/fmdb) for the storage engine. As always, the quickest way to take care of all those details is to use [CocoaPods](http://cocoapods.org/). EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all processed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate:
 
 YourAppDelegate.h
 ```objective-c
