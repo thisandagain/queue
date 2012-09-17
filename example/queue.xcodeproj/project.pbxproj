@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C32F6E07160795C3004BA8A1 /* EDQueue.podspec in Resources */ = {isa = PBXBuildFile; fileRef = C32F6E06160795C3004BA8A1 /* EDQueue.podspec */; };
+		C32F6E0C16079680004BA8A1 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */; };
 		C395D50D159E56760041510C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50C159E56760041510C /* UIKit.framework */; };
 		C395D50F159E56760041510C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50E159E56760041510C /* Foundation.framework */; };
 		C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D510159E56760041510C /* CoreGraphics.framework */; };
@@ -21,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C32F6E06160795C3004BA8A1 /* EDQueue.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = EDQueue.podspec; path = ../EDQueue.podspec; sourceTree = "<group>"; };
+		C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		C395D508159E56760041510C /* queue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = queue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C395D50C159E56760041510C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C395D50E159E56760041510C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -45,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C32F6E0C16079680004BA8A1 /* libsqlite3.0.dylib in Frameworks */,
 				C395D50D159E56760041510C /* UIKit.framework in Frameworks */,
 				C395D50F159E56760041510C /* Foundation.framework in Frameworks */,
 				C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */,
@@ -54,14 +59,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		C395D4FD159E56760041510C = {
+		C32F6E05160793FB004BA8A1 /* EDQueue */ = {
 			isa = PBXGroup;
 			children = (
 				C395D532159E57880041510C /* EDQueue.h */,
 				C395D533159E57880041510C /* EDQueue.m */,
+			);
+			name = EDQueue;
+			sourceTree = "<group>";
+		};
+		C395D4FD159E56760041510C = {
+			isa = PBXGroup;
+			children = (
 				C395D52D159E57520041510C /* LICENSE.md */,
 				C395D52E159E57520041510C /* README.md */,
-				C395D512159E56760041510C /* queue */,
+				C32F6E06160795C3004BA8A1 /* EDQueue.podspec */,
+				C32F6E05160793FB004BA8A1 /* EDQueue */,
+				C395D512159E56760041510C /* Example */,
 				C395D50B159E56760041510C /* Frameworks */,
 				C395D509159E56760041510C /* Products */,
 			);
@@ -78,6 +92,7 @@
 		C395D50B159E56760041510C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */,
 				C395D50C159E56760041510C /* UIKit.framework */,
 				C395D50E159E56760041510C /* Foundation.framework */,
 				C395D510159E56760041510C /* CoreGraphics.framework */,
@@ -85,7 +100,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C395D512159E56760041510C /* queue */ = {
+		C395D512159E56760041510C /* Example */ = {
 			isa = PBXGroup;
 			children = (
 				C395D51B159E56760041510C /* EDAppDelegate.h */,
@@ -95,6 +110,7 @@
 				C395D521159E56760041510C /* EDViewController.xib */,
 				C395D513159E56760041510C /* Supporting Files */,
 			);
+			name = Example;
 			path = queue;
 			sourceTree = "<group>";
 		};
@@ -165,6 +181,7 @@
 				C395D523159E56760041510C /* EDViewController.xib in Resources */,
 				C395D52F159E57520041510C /* LICENSE.md in Resources */,
 				C395D530159E57520041510C /* README.md in Resources */,
+				C32F6E07160795C3004BA8A1 /* EDQueue.podspec in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +267,8 @@
 		C395D527159E56760041510C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "queue/queue-Prefix.pch";
 				INFOPLIST_FILE = "queue/queue-Info.plist";
@@ -261,6 +280,8 @@
 		C395D528159E56760041510C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "queue/queue-Prefix.pch";
 				INFOPLIST_FILE = "queue/queue-Info.plist";

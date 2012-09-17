@@ -3,7 +3,7 @@
 //  queue
 //
 //  Created by Andrew Sliwinski on 6/29/12.
-//  Copyright (c) 2012 DIY, Co. All rights reserved.
+//  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

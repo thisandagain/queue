@@ -3,7 +3,7 @@
 //  queue
 //
 //  Created by Andrew Sliwinski on 6/29/12.
-//  Copyright (c) 2012 DIY, Co. All rights reserved.
+//  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
 #import "EDQueue.h"
@@ -114,7 +114,6 @@
             // Fetch job
             id job = [self.queue objectAtIndex:0];
             if (job != nil) {
-                [[job retain] autorelease];
                 [self.queue removeObjectAtIndex:0];
                 active++;
             }
@@ -184,10 +183,8 @@
 {    
     self.delegate = nil;
     
-    [_queue release]; _queue = nil;
-    [_timer release]; _timer = nil;
-    
-    [super dealloc];
+    _queue = nil;
+    _timer = nil;
 }
 
 @end
