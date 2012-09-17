@@ -27,20 +27,34 @@ YourAppDelegate.h
 
 YourAppDelegate.m
 ```objective-c
-[[EDQueue sharedInstance] setDelegate:self];
-[[EDQueue sharedInstance] start];
-```
-```objective-c
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    [[EDQueue sharedInstance] setDelegate:self];
+    [[EDQueue sharedInstance] start];
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    [[EDQueue sharedInstance] stop];
+}
+
 - (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
 {
-    NSLog(@"Hey look it's a job! %@", job);
-    return EDQueueResultSuccess;
+    sleep(1);           // This won't block the main thread. Yay!
+    
+    if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+        return EDQueueResultSuccess;
+    } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+        return EDQueueResultFail;
+    }
+    
+    return EDQueueResultCritical;
 }
 ```
 
 SomewhereElse.m
 ```objective-c
-[[EDQueue sharedInstance] enqueueWithData:kitty forTask:@"nyancat"];
+[[EDQueue sharedInstance] enqueueWithData:@{ @"foo" : @"bar" } forTask:@"nyancat"];
 ```
 
 In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
