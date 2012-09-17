@@ -1,7 +1,7 @@
 ## Queue
 #### A persistent background job queue for iOS.
 
-While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and [SQLLite3](http://www.sqlite.org/). All you need to do is handle the job within the provided delegate method and EDQueue handles the rest.
+While `NSOperation` and `NSOperationQueue` work well for some repetitive problems and `NSInvocation` for others, iOS doesn't really include a set of tools for managing large collections of arbitrary background tasks easily. EDQueue provides a high-level interface for implementing a threaded job queue using [GCD](http://developer.apple.com/library/ios/#documentation/Performance/Reference/GCD_libdispatch_Ref/Reference/reference.html) and [SQLLite3](http://www.sqlite.org/). All you need to do is handle the jobs within the provided delegate method and EDQueue handles the rest.
 
 **EDQueue tries to provide three things:**
 - A simple interface for handling background job queues across an application.
@@ -71,11 +71,8 @@ EDQueueResultCritical
 
 ### Properties
 ```objective-c
-@property (nonatomic, assign) id<EDQueueDelegate> delegate;
-@property (nonatomic, assign) NSUInteger concurrencyLimit;
-@property (nonatomic, assign) CGFloat statusInterval;
-@property (nonatomic, assign) BOOL retryFailureImmediately;
-@property (nonatomic, assign) NSUInteger retryLimit;
+@property (weak) id<EDQueueDelegate> delegate;
+@property NSUInteger retryLimit;
 ```
 
 ### Notifications
@@ -90,7 +87,7 @@ EDQueueJobDidFail
 ---
 
 ### iOS Support
-EDQueue is tested on iOS 5 and up. Older versions of iOS may work but are not currently supported.
+EDQueue is designed for iOS 5 and up.
 
 ### ARC
 EDQueue as of `v0.5.0` is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
