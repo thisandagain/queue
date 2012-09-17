@@ -10,4 +10,5 @@ Pod::Spec.new do |s|
   s.source_files = 'EDQueue'
   s.library      = 'sqlite3.0'
   s.requires_arc = true
+  s.dependency 'FMDB', '~> 2.0'
 end
