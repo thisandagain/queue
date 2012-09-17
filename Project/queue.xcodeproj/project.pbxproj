@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		C32F6E07160795C3004BA8A1 /* EDQueue.podspec in Resources */ = {isa = PBXBuildFile; fileRef = C32F6E06160795C3004BA8A1 /* EDQueue.podspec */; };
 		C32F6E0C16079680004BA8A1 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */; };
+		C32F6E191607AC35004BA8A1 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E101607AC35004BA8A1 /* FMDatabase.m */; };
+		C32F6E1A1607AC35004BA8A1 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E121607AC35004BA8A1 /* FMDatabaseAdditions.m */; };
+		C32F6E1B1607AC35004BA8A1 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E141607AC35004BA8A1 /* FMDatabasePool.m */; };
+		C32F6E1C1607AC35004BA8A1 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E161607AC35004BA8A1 /* FMDatabaseQueue.m */; };
+		C32F6E1D1607AC35004BA8A1 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E181607AC35004BA8A1 /* FMResultSet.m */; };
 		C395D50D159E56760041510C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50C159E56760041510C /* UIKit.framework */; };
 		C395D50F159E56760041510C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50E159E56760041510C /* Foundation.framework */; };
 		C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D510159E56760041510C /* CoreGraphics.framework */; };
@@ -25,6 +30,16 @@
 /* Begin PBXFileReference section */
 		C32F6E06160795C3004BA8A1 /* EDQueue.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = EDQueue.podspec; path = ../EDQueue.podspec; sourceTree = "<group>"; };
 		C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
+		C32F6E0F1607AC35004BA8A1 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		C32F6E101607AC35004BA8A1 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
+		C32F6E111607AC35004BA8A1 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		C32F6E121607AC35004BA8A1 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		C32F6E131607AC35004BA8A1 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		C32F6E141607AC35004BA8A1 /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		C32F6E151607AC35004BA8A1 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		C32F6E161607AC35004BA8A1 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		C32F6E171607AC35004BA8A1 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		C32F6E181607AC35004BA8A1 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
 		C395D508159E56760041510C /* queue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = queue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C395D50C159E56760041510C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C395D50E159E56760041510C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -68,6 +83,31 @@
 			name = EDQueue;
 			sourceTree = "<group>";
 		};
+		C32F6E0D1607AC13004BA8A1 /* Lib */ = {
+			isa = PBXGroup;
+			children = (
+				C32F6E0E1607AC35004BA8A1 /* Fmdb */,
+			);
+			name = Lib;
+			sourceTree = "<group>";
+		};
+		C32F6E0E1607AC35004BA8A1 /* Fmdb */ = {
+			isa = PBXGroup;
+			children = (
+				C32F6E0F1607AC35004BA8A1 /* FMDatabase.h */,
+				C32F6E101607AC35004BA8A1 /* FMDatabase.m */,
+				C32F6E111607AC35004BA8A1 /* FMDatabaseAdditions.h */,
+				C32F6E121607AC35004BA8A1 /* FMDatabaseAdditions.m */,
+				C32F6E131607AC35004BA8A1 /* FMDatabasePool.h */,
+				C32F6E141607AC35004BA8A1 /* FMDatabasePool.m */,
+				C32F6E151607AC35004BA8A1 /* FMDatabaseQueue.h */,
+				C32F6E161607AC35004BA8A1 /* FMDatabaseQueue.m */,
+				C32F6E171607AC35004BA8A1 /* FMResultSet.h */,
+				C32F6E181607AC35004BA8A1 /* FMResultSet.m */,
+			);
+			path = Fmdb;
+			sourceTree = "<group>";
+		};
 		C395D4FD159E56760041510C = {
 			isa = PBXGroup;
 			children = (
@@ -75,6 +115,7 @@
 				C395D52E159E57520041510C /* README.md */,
 				C32F6E06160795C3004BA8A1 /* EDQueue.podspec */,
 				C32F6E05160793FB004BA8A1 /* EDQueue */,
+				C32F6E0D1607AC13004BA8A1 /* Lib */,
 				C395D512159E56760041510C /* Example */,
 				C395D50B159E56760041510C /* Frameworks */,
 				C395D509159E56760041510C /* Products */,
@@ -196,6 +237,11 @@
 				C395D51D159E56760041510C /* EDAppDelegate.m in Sources */,
 				C395D520159E56760041510C /* EDViewController.m in Sources */,
 				C395D534159E57880041510C /* EDQueue.m in Sources */,
+				C32F6E191607AC35004BA8A1 /* FMDatabase.m in Sources */,
+				C32F6E1A1607AC35004BA8A1 /* FMDatabaseAdditions.m in Sources */,
+				C32F6E1B1607AC35004BA8A1 /* FMDatabasePool.m in Sources */,
+				C32F6E1C1607AC35004BA8A1 /* FMDatabaseQueue.m in Sources */,
+				C32F6E1D1607AC35004BA8A1 /* FMResultSet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

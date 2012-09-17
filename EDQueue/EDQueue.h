@@ -7,6 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "FMDatabase.h"
+#import "FMDatabaseAdditions.h"
+#import "FMDatabasePool.h"
+#import "FMDatabaseQueue.h"
 
 //
 
@@ -37,16 +41,13 @@ typedef enum {
 
 @interface EDQueue : NSObject
 {
-    @private NSMutableArray *queue;
-    @private NSTimer *timer;
-    @private NSUInteger active;
+    @private FMDatabaseQueue *queue;
 }
 
-@property (nonatomic, assign) id<EDQueueDelegate> delegate;
-@property (nonatomic, assign) NSUInteger concurrencyLimit;
-@property (nonatomic, assign) CGFloat statusInterval;
-@property (nonatomic, assign) BOOL retryFailureImmediately;
-@property (nonatomic, assign) NSUInteger retryLimit;
+@property (weak) id<EDQueueDelegate> delegate;
+@property (readonly) Boolean isRunning;
+@property (readonly) Boolean isActive;
+@property NSUInteger retryLimit;
 
 + (EDQueue *)sharedInstance;
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
