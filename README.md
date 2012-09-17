@@ -72,6 +72,8 @@ EDQueueResultCritical
 ### Properties
 ```objective-c
 @property (weak) id<EDQueueDelegate> delegate;
+@property (readonly) Boolean isRunning;
+@property (readonly) Boolean isActive;
 @property NSUInteger retryLimit;
 ```
 
