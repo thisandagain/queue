@@ -7,10 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FMDatabase.h"
-#import "FMDatabaseAdditions.h"
-#import "FMDatabasePool.h"
-#import "FMDatabaseQueue.h"
+#import "EDQueueStorageEngine.h"
 
 //
 
@@ -41,7 +38,7 @@ typedef enum {
 
 @interface EDQueue : NSObject
 {
-    @private FMDatabaseQueue *queue;
+    @private EDQueueStorageEngine *engine;
 }
 
 @property (weak) id<EDQueueDelegate> delegate;
