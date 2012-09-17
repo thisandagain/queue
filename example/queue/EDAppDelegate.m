@@ -3,7 +3,7 @@
 //  queue
 //
 //  Created by Andrew Sliwinski on 6/29/12.
-//  Copyright (c) 2012 DIY, Co. All rights reserved.
+//  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
 #import "EDAppDelegate.h"
@@ -14,16 +14,9 @@
 @synthesize window = _window;
 @synthesize viewController = _viewController;
 
-- (void)dealloc
-{
-    [_window release];
-    [_viewController release];
-    [super dealloc];
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     //
         
@@ -32,7 +25,7 @@
     
     //
     
-    self.viewController = [[[EDViewController alloc] initWithNibName:@"EDViewController" bundle:nil] autorelease];
+    self.viewController = [[EDViewController alloc] initWithNibName:@"EDViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     return YES;

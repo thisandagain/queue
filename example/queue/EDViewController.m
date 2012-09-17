@@ -3,7 +3,7 @@
 //  queue
 //
 //  Created by Andrew Sliwinski on 6/29/12.
-//  Copyright (c) 2012 DIY, Co. All rights reserved.
+//  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
 #import "EDViewController.h"
@@ -62,7 +62,7 @@
 - (void)releaseObjects
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_activity release]; _activity = nil;
+    _activity = nil;
 }
 
 - (void)viewDidUnload
@@ -74,7 +74,6 @@
 - (void)dealloc
 {
     [self releaseObjects];
-    [super dealloc];
 }
 
 @end
