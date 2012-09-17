@@ -36,7 +36,7 @@
 
 - (IBAction)addSuccess:(id)sender
 {
-    [[EDQueue sharedInstance] enqueueWithData:nil forTask:@"success"];
+    [[EDQueue sharedInstance] enqueueWithData:@{ @"nyan" : @"cat" } forTask:@"success"];
 }
 
 - (IBAction)addFail:(id)sender

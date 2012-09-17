@@ -14,6 +14,7 @@
 		C32F6E1B1607AC35004BA8A1 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E141607AC35004BA8A1 /* FMDatabasePool.m */; };
 		C32F6E1C1607AC35004BA8A1 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E161607AC35004BA8A1 /* FMDatabaseQueue.m */; };
 		C32F6E1D1607AC35004BA8A1 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E181607AC35004BA8A1 /* FMResultSet.m */; };
+		C32F6E241607E1FB004BA8A1 /* EDQueueStorageEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E231607E1FB004BA8A1 /* EDQueueStorageEngine.m */; };
 		C395D50D159E56760041510C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50C159E56760041510C /* UIKit.framework */; };
 		C395D50F159E56760041510C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D50E159E56760041510C /* Foundation.framework */; };
 		C395D511159E56760041510C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C395D510159E56760041510C /* CoreGraphics.framework */; };
@@ -40,6 +41,8 @@
 		C32F6E161607AC35004BA8A1 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
 		C32F6E171607AC35004BA8A1 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		C32F6E181607AC35004BA8A1 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		C32F6E221607E1FB004BA8A1 /* EDQueueStorageEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDQueueStorageEngine.h; path = ../EDQueue/EDQueueStorageEngine.h; sourceTree = "<group>"; };
+		C32F6E231607E1FB004BA8A1 /* EDQueueStorageEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDQueueStorageEngine.m; path = ../EDQueue/EDQueueStorageEngine.m; sourceTree = "<group>"; };
 		C395D508159E56760041510C /* queue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = queue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C395D50C159E56760041510C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C395D50E159E56760041510C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -79,6 +82,8 @@
 			children = (
 				C395D532159E57880041510C /* EDQueue.h */,
 				C395D533159E57880041510C /* EDQueue.m */,
+				C32F6E221607E1FB004BA8A1 /* EDQueueStorageEngine.h */,
+				C32F6E231607E1FB004BA8A1 /* EDQueueStorageEngine.m */,
 			);
 			name = EDQueue;
 			sourceTree = "<group>";
@@ -242,6 +247,7 @@
 				C32F6E1B1607AC35004BA8A1 /* FMDatabasePool.m in Sources */,
 				C32F6E1C1607AC35004BA8A1 /* FMDatabaseQueue.m in Sources */,
 				C32F6E1D1607AC35004BA8A1 /* FMResultSet.m in Sources */,
+				C32F6E241607E1FB004BA8A1 /* EDQueueStorageEngine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
