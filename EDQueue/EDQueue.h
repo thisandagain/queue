@@ -37,9 +37,6 @@ typedef enum {
 //
 
 @interface EDQueue : NSObject
-{
-    @private EDQueueStorageEngine *engine;
-}
 
 @property (weak) id<EDQueueDelegate> delegate;
 @property (readonly) Boolean isRunning;
