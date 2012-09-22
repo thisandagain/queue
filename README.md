@@ -34,10 +34,16 @@ YourAppDelegate.m
 {
     sleep(1);           // This won't block the main thread. Yay!
     
-    if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-        return EDQueueResultSuccess;
-    } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-        return EDQueueResultFail;
+    // Wrap your job processing in a try-catch. Always use protection!
+    @try {
+        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+            return EDQueueResultSuccess;
+        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+            return EDQueueResultFail;
+        }
+    }
+    @catch (NSException *exception) {
+        return EDQueueResultCritical;
     }
     
     return EDQueueResultCritical;
