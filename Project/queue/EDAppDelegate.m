@@ -41,10 +41,15 @@
 {
     sleep(1);
     
-    if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-        return EDQueueResultSuccess;
-    } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-        return EDQueueResultFail;
+    @try {
+        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+            return EDQueueResultSuccess;
+        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+            return EDQueueResultFail;
+        }
+    }
+    @catch (NSException *exception) {
+        return EDQueueResultCritical;
     }
     
     return EDQueueResultCritical;
