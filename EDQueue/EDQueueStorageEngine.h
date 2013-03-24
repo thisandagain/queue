@@ -15,7 +15,7 @@
 
 @interface EDQueueStorageEngine : NSObject
 
-@property FMDatabaseQueue *queue;
+@property (retain) FMDatabaseQueue *queue;
 
 - (void)createJob:(id)data forTask:(id)task;
 - (void)incrementAttemptForJob:(NSNumber *)jid;
