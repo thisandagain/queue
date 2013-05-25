@@ -30,9 +30,8 @@ typedef enum {
 @class EDQueue;
 
 @protocol EDQueueDelegate <NSObject>
-@required
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
 @optional
+- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
 - (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
 @end
 

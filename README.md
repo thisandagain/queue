@@ -60,6 +60,29 @@ In order to keep things simple, the delegate method expects a return type of `ED
 - `EDQueueResultFail`: Used to indicate that a job has failed and should be retried (up to the specified `retryLimit`)
 - `EDQueueResultCritical`: Used to indicate that a job has failed critically and should not be attempted again
 
+### Handling Async Jobs
+As of v0.6.0 queue includes a delegate method suited for handling asyncronous jobs such as HTTP requests or [Disk I/O](https://github.com/thisandagain/storage):
+
+```objective-c
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
+{
+    sleep(1);
+    
+    @try {
+        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+            block(EDQueueResultSuccess);
+        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+            block(EDQueueResultFail);
+        } else {
+            block(EDQueueResultCritical);
+        }
+    }
+    @catch (NSException *exception) {
+        block(EDQueueResultCritical);
+    }
+}
+```
+
 ---
 
 ### Methods
@@ -72,6 +95,7 @@ In order to keep things simple, the delegate method expects a return type of `ED
 ### Delegate Methods
 ```objective-c
 - (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
 ```
 
 ### Result Types

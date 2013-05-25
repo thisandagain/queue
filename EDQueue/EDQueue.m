@@ -107,7 +107,7 @@
                 [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
                     [self processJob:job withResult:result];
                 }];
-            }else{
+            } else {
                 EDQueueResult result = [self.delegate queue:self processJob:job];
                 [self processJob:job withResult:result];
             }

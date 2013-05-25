@@ -37,23 +37,41 @@
     [[EDQueue sharedInstance] stop];
 }
 
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
 {
     sleep(1);
     
     @try {
         if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-            return EDQueueResultSuccess;
+            block(EDQueueResultSuccess);
         } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-            return EDQueueResultFail;
+            block(EDQueueResultFail);
+        } else {
+            block(EDQueueResultCritical);
         }
     }
     @catch (NSException *exception) {
-        return EDQueueResultCritical;
+        block(EDQueueResultCritical);
     }
-    
-    return EDQueueResultCritical;
 }
+
+//- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
+//{
+//    sleep(1);
+//    
+//    @try {
+//        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+//            return EDQueueResultSuccess;
+//        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+//            return EDQueueResultFail;
+//        }
+//    }
+//    @catch (NSException *exception) {
+//        return EDQueueResultCritical;
+//    }
+//    
+//    return EDQueueResultCritical;
+//}
 
 //
 
