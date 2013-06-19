@@ -7,23 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EDQueueStorageEngine.h"
 
 //
-
-#define DEFINE_SHARED_INSTANCE_USING_BLOCK(block) \
-static dispatch_once_t pred = 0; \
-__strong static id _sharedObject = nil; \
-dispatch_once(&pred, ^{ \
-_sharedObject = block(); \
-}); \
-return _sharedObject; \
 
 typedef enum {
     EDQueueResultSuccess,
     EDQueueResultFail,
     EDQueueResultCritical
 } EDQueueResult;
+
+UIKIT_EXTERN NSString *const EDQueueDidStart;
+UIKIT_EXTERN NSString *const EDQueueDidStop;
+UIKIT_EXTERN NSString *const EDQueueJobDidSucceed;
+UIKIT_EXTERN NSString *const EDQueueJobDidFail;
+UIKIT_EXTERN NSString *const EDQueueDidDrain;
 
 //
 
