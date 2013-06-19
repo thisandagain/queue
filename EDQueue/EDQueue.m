@@ -123,17 +123,19 @@
             [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidSucceed", @"name", job, @"data", nil] waitUntilDone:false];
             [self.engine removeJob:[job objectForKey:@"id"]];
             break;
-        case EDQueueResultFail:
-            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:true];
+        case EDQueueResultFail: {
             NSUInteger currentAttempt = [[job objectForKey:@"attempts"] intValue] + 1;
-            if (currentAttempt < self.retryLimit) {
+            BOOL willRetry = currentAttempt < self.retryLimit;
+            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", [NSNumber numberWithBool:willRetry], @"willRetry", nil] waitUntilDone:true];
+            if (willRetry) {
                 [self.engine incrementAttemptForJob:[job objectForKey:@"id"]];
             } else {
                 [self.engine removeJob:[job objectForKey:@"id"]];
             }
             break;
+        }
         case EDQueueResultCritical:
-            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:@"EDQueueJobDidFail", @"name", job, @"data", nil] waitUntilDone:false];
+            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", [NSNumber numberWithBool:NO], @"willRetry", nil] waitUntilDone:false];
             [self errorWithMessage:@"Critical error. Job canceled."];
             [self.engine removeJob:[job objectForKey:@"id"]];
             break;
@@ -161,7 +163,7 @@
  */
 - (void)postNotification:(NSDictionary *)object
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"] userInfo:[NSDictionary dictionaryWithObjectsAndKeys:[object objectForKey:@"willRetry"], @"willRetry", nil]];
 }
 
 /**
