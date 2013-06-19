@@ -14,6 +14,7 @@
 @property EDQueueStorageEngine *engine;
 @property (readwrite) Boolean isRunning;
 @property (readwrite) Boolean isActive;
+@property (readwrite) NSString *activeTask;
 @end
 
 //
@@ -59,6 +60,45 @@
 }
 
 /**
+ * Returns true if a job exists for this task.
+ *
+ * @param {NSString} Task label
+ *
+ * @return {Boolean}
+ */
+- (Boolean)jobExistsForTask:(NSString *)task
+{
+    Boolean jobExists = [self.engine jobExistsForTask:task];
+    return jobExists;
+}
+
+/**
+ * Returns true if the active job if for this task.
+ *
+ * @param {NSString} Task label
+ *
+ * @return {Boolean}
+ */
+- (Boolean)jobIsActiveForTask:(NSString *)task
+{
+    Boolean jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
+    return jobIsActive;
+}
+
+/**
+ * Returns the list of jobs for this 
+ *
+ * @param {NSString} Task label
+ *
+ * @return {NSArray}
+ */
+- (NSDictionary *)nextJobForTask:(NSString *)task
+{
+    NSDictionary *nextJobForTask = [self.engine fetchJobForTask:task];
+    return nextJobForTask;
+}
+
+/**
  * Starts the queue.
  *
  * @return {void}
@@ -101,15 +141,18 @@
             // Start job
             self.isActive = true;
             id job = [self.engine fetchJob];
+            self.activeTask = [(NSDictionary *)job objectForKey:@"task"];
             
             // Pass job to delegate
             if ([self.delegate respondsToSelector:@selector(queue:processJob:completion:)]) {
                 [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
                     [self processJob:job withResult:result];
+                    self.activeTask = nil;
                 }];
             } else {
                 EDQueueResult result = [self.delegate queue:self processJob:job];
                 [self processJob:job withResult:result];
+                self.activeTask = nil;
             }
         }
     });

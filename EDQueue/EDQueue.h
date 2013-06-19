@@ -46,6 +46,9 @@ typedef enum {
 
 + (EDQueue *)sharedInstance;
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
+- (Boolean)jobExistsForTask:(NSString *)task;
+- (Boolean)jobIsActiveForTask:(NSString *)task;
+- (NSDictionary *)nextJobForTask:(NSString *)task;
 - (void)start;
 - (void)stop;
 
