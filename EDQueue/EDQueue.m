@@ -90,7 +90,7 @@
 
 /**
  * Empties the queue.
- * @note Jobs that have already started will continue to process even after stop has been called.
+ * @note Jobs that have already started will continue to process even after empty has been called.
  *
  * @return {void}
  */
