@@ -29,6 +29,8 @@
         }];
     }
     
+
+    
     return self;
 }
 
@@ -43,6 +45,7 @@
  * @return {void}
  */
 - (void)createJob:(id)data forTask:(id)task
+
 {
     NSString *dataString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
     
@@ -78,6 +81,20 @@
 {
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"DELETE FROM queue WHERE id = ?", jid];
+        [self databaseHadError:[db hadError] fromDatabase:db];
+    }];
+}
+
+
+/**
+ * Removes all pending jobs from the datastore
+ *
+ * @return {void}
+ *
+ */
+- (void)removeAllJobs {
+    [self.queue inDatabase:^(FMDatabase *db) {
+        [db executeUpdate:@"DELETE FROM queue"];
         [self databaseHadError:[db hadError] fromDatabase:db];
     }];
 }

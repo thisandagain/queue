@@ -22,5 +22,6 @@
 - (void)removeJob:(NSNumber *)jid;
 - (NSUInteger)fetchJobCount;
 - (NSDictionary *)fetchJob;
+- (void)removeAllJobs;
 
 @end

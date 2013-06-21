@@ -48,5 +48,6 @@ typedef enum {
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
 - (void)start;
 - (void)stop;
+- (void)empty;
 
 @end
