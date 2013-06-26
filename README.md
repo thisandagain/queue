@@ -83,13 +83,27 @@ As of v0.6.0 queue includes a delegate method suited for handling asyncronous jo
 }
 ```
 
+### Introspection
+As of v0.7.0 queue includes a collection of methods to aid in queue introspection specific to each task:
+```objective-c
+- (Boolean)jobExistsForTask:(NSString *)task;
+- (Boolean)jobIsActiveForTask:(NSString *)task;
+- (NSDictionary *)nextJobForTask:(NSString *)task;
+```
+
 ---
 
 ### Methods
 ```objective-c
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
+
 - (void)start;
 - (void)stop;
+- (void)empty;
+
+- (Boolean)jobExistsForTask:(NSString *)task;
+- (Boolean)jobIsActiveForTask:(NSString *)task;
+- (NSDictionary *)nextJobForTask:(NSString *)task;
 ```
 
 ### Delegate Methods
@@ -128,4 +142,4 @@ EDQueueJobDidFail
 EDQueue is designed for iOS 5 and up.
 
 ### ARC
-EDQueue as of `v0.5.0` is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
+EDQueue is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
