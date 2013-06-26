@@ -56,6 +56,31 @@
 }
 
 /**
+ * Tells if a job exists for the specified task name.
+ *
+ * @param {NSString} Task name
+ *
+ * @return {BOOL}
+ */
+- (Boolean)jobExistsForTask:(id)task
+{
+    __block Boolean jobExists = NO;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
+        [self databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            jobExists |= ([rs intForColumn:@"count"] > 0);
+        }
+        
+        [rs close];
+    }];
+    
+    return jobExists;
+}
+
+/**
  * Increments the "attempts" column for a specified job.
  *
  * @param {NSNumber} Job id
@@ -136,13 +161,32 @@
         [self databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
-            job = @{
-                @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-                @"task":        [rs stringForColumn:@"task"],
-                @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
-                @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-                @"stamp":       [rs stringForColumn:@"stamp"]
-            };
+            job = [self jobFromResultSet:rs];
+        }
+        
+        [rs close];
+    }];
+    
+    return job;
+}
+
+/**
+ * Returns the oldest job for the task from the datastore.
+ *
+ * @param {id} Task label
+ *
+ * @return {NSDictionary}
+ */
+- (NSDictionary *)fetchJobForTask:(id)task
+{
+    __block id job;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
+        [self databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            job = [self jobFromResultSet:rs];
         }
         
         [rs close];
@@ -152,6 +196,18 @@
 }
 
 #pragma mark - Private methods
+
+- (NSDictionary *)jobFromResultSet:(FMResultSet *)rs
+{
+    NSDictionary *job = @{
+        @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
+        @"task":        [rs stringForColumn:@"task"],
+        @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
+        @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
+        @"stamp":       [rs stringForColumn:@"stamp"]
+    };
+    return job;
+}
 
 - (Boolean)databaseHadError:(Boolean)flag fromDatabase:(FMDatabase *)db
 {
