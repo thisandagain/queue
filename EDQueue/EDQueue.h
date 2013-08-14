@@ -39,9 +39,12 @@ UIKIT_EXTERN NSString *const EDQueueDidDrain;
 @property (weak) id<EDQueueDelegate> delegate;
 @property (readonly) Boolean isRunning;
 @property (readonly) Boolean isActive;
+@property (readonly) NSString *name;
 @property NSUInteger retryLimit;
 
 + (EDQueue *)sharedInstance;
++ (EDQueue *)queueNamed:(NSString *)name;
+
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
 
 - (void)start;

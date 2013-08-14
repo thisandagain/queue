@@ -12,14 +12,19 @@
 
 #pragma mark - Init
 
-- (id)init
+- (id)init {
+  return [self initWithName:nil];
+}
+
+- (EDQueueStorageEngine *)initWithName:(NSString *)name
 {
     self = [super init];
     if (self) {
         // Database path
+        _name                           = [NSString stringWithFormat:@"edqueue_%@.db", name?:@"0.5.0d"];
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0d.db"];
+        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:self.name];
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];

@@ -45,11 +45,20 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     });
 }
 
-- (id)init
++ (EDQueue *)queueNamed:(NSString *)name {
+  return [[self alloc] initWithName:name];
+}
+
+- (id)init {
+  return [self initWithName:nil];
+}
+
+- (id)initWithName:(NSString *)name
 {
     self = [super init];
     if (self) {
-        _engine     = [[EDQueueStorageEngine alloc] init];
+        _name       = name;
+        _engine     = [[EDQueueStorageEngine alloc] initWithName:self.name];
         _isRunning  = false;
         _isActive   = false;
         _retryLimit = 4;
