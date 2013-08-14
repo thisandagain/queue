@@ -242,7 +242,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  */
 - (void)postNotification:(NSDictionary *)object
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"] userInfo:@{@"queue" : self.name?:@"default"}];
 }
 
 /**
