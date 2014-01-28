@@ -9,16 +9,6 @@
 #import "EDQueue.h"
 #import "EDQueueStorageEngine.h"
 
-//
-
-#define DEFINE_SHARED_INSTANCE_USING_BLOCK(block) \
-static dispatch_once_t pred = 0; \
-__strong static id _sharedObject = nil; \
-dispatch_once(&pred, ^{ \
-_sharedObject = block(); \
-}); \
-return _sharedObject; \
-
 NSString *const EDQueueDidStart = @"EDQueueDidStart";
 NSString *const EDQueueDidStop = @"EDQueueDidStop";
 NSString *const EDQueueJobDidSucceed = @"EDQueueJobDidSucceed";
@@ -26,6 +16,9 @@ NSString *const EDQueueJobDidFail = @"EDQueueJobDidFail";
 NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 @interface EDQueue ()
+{
+}
+
 @property EDQueueStorageEngine *engine;
 @property (readwrite) Boolean isRunning;
 @property (readwrite) Boolean isActive;
@@ -36,14 +29,19 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 @implementation EDQueue
 
-#pragma mark - Init
+#pragma mark - Singleton
 
 + (EDQueue *)sharedInstance
 {
-    DEFINE_SHARED_INSTANCE_USING_BLOCK(^{
-        return [[self alloc] init];
+    static EDQueue *singleton = nil;
+    static dispatch_once_t once = 0;
+    dispatch_once(&once, ^{
+        singleton = [[self alloc] init];
     });
+    return singleton;
 }
+
+#pragma mark - Init
 
 - (id)init
 {
