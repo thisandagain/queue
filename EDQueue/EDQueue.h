@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-//
-
 typedef NS_ENUM(NSInteger, EDQueueResult) {
     EDQueueResultSuccess = 0,
     EDQueueResultFail,
@@ -27,20 +25,21 @@ extern NSString *const EDQueueDidDrain;
 @protocol EDQueueDelegate;
 @interface EDQueue : NSObject
 
-@property (weak) id<EDQueueDelegate> delegate;
-@property (readonly) Boolean isRunning;
-@property (readonly) Boolean isActive;
-@property NSUInteger retryLimit;
-
 + (EDQueue *)sharedInstance;
-- (void)enqueueWithData:(id)data forTask:(NSString *)task;
 
+@property (nonatomic, weak) id<EDQueueDelegate> delegate;
+
+@property (nonatomic, readonly) BOOL isRunning;
+@property (nonatomic, readonly) BOOL isActive;
+@property (nonatomic) NSUInteger retryLimit;
+
+- (void)enqueueWithData:(id)data forTask:(NSString *)task;
 - (void)start;
 - (void)stop;
 - (void)empty;
 
-- (Boolean)jobExistsForTask:(NSString *)task;
-- (Boolean)jobIsActiveForTask:(NSString *)task;
+- (BOOL)jobExistsForTask:(NSString *)task;
+- (BOOL)jobIsActiveForTask:(NSString *)task;
 - (NSDictionary *)nextJobForTask:(NSString *)task;
 
 @end
