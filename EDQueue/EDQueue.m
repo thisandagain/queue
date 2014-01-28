@@ -9,16 +9,6 @@
 #import "EDQueue.h"
 #import "EDQueueStorageEngine.h"
 
-//
-
-#define DEFINE_SHARED_INSTANCE_USING_BLOCK(block) \
-static dispatch_once_t pred = 0; \
-__strong static id _sharedObject = nil; \
-dispatch_once(&pred, ^{ \
-_sharedObject = block(); \
-}); \
-return _sharedObject; \
-
 NSString *const EDQueueDidStart = @"EDQueueDidStart";
 NSString *const EDQueueDidStop = @"EDQueueDidStop";
 NSString *const EDQueueJobDidSucceed = @"EDQueueJobDidSucceed";
@@ -26,35 +16,53 @@ NSString *const EDQueueJobDidFail = @"EDQueueJobDidFail";
 NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 @interface EDQueue ()
-@property EDQueueStorageEngine *engine;
-@property (readwrite) Boolean isRunning;
-@property (readwrite) Boolean isActive;
-@property (readwrite) NSString *activeTask;
+{
+    BOOL _isRunning;
+    BOOL _isActive;
+    NSUInteger _retryLimit;
+}
+
+@property (nonatomic) EDQueueStorageEngine *engine;
+@property (nonatomic, readwrite) NSString *activeTask;
+
 @end
 
 //
 
 @implementation EDQueue
 
-#pragma mark - Init
+@synthesize isRunning = _isRunning;
+@synthesize isActive = _isActive;
+@synthesize retryLimit = _retryLimit;
+
+#pragma mark - Singleton
 
 + (EDQueue *)sharedInstance
 {
-    DEFINE_SHARED_INSTANCE_USING_BLOCK(^{
-        return [[self alloc] init];
+    static EDQueue *singleton = nil;
+    static dispatch_once_t once = 0;
+    dispatch_once(&once, ^{
+        singleton = [[self alloc] init];
     });
+    return singleton;
 }
+
+#pragma mark - Init
 
 - (id)init
 {
     self = [super init];
     if (self) {
         _engine     = [[EDQueueStorageEngine alloc] init];
-        _isRunning  = false;
-        _isActive   = false;
         _retryLimit = 4;
     }
     return self;
+}
+
+- (void)dealloc
+{    
+    self.delegate = nil;
+    _engine = nil;
 }
 
 #pragma mark - Public methods
@@ -81,9 +89,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {Boolean}
  */
-- (Boolean)jobExistsForTask:(NSString *)task
+- (BOOL)jobExistsForTask:(NSString *)task
 {
-    Boolean jobExists = [self.engine jobExistsForTask:task];
+    BOOL jobExists = [self.engine jobExistsForTask:task];
     return jobExists;
 }
 
@@ -94,9 +102,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {Boolean}
  */
-- (Boolean)jobIsActiveForTask:(NSString *)task
+- (BOOL)jobIsActiveForTask:(NSString *)task
 {
-    Boolean jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
+    BOOL jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
     return jobIsActive;
 }
 
@@ -121,7 +129,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)start
 {
     if (!self.isRunning) {
-        self.isRunning = true;
+        _isRunning = YES;
         [self tick];
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
@@ -136,7 +144,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)stop
 {
     if (self.isRunning) {
-        self.isRunning = false;
+        _isRunning = YES;
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStop, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }
@@ -168,7 +176,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     dispatch_async(gcd, ^{
         if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
             // Start job
-            self.isActive = true;
+            _isActive = YES;
             id job = [self.engine fetchJob];
             self.activeTask = [(NSDictionary *)job objectForKey:@"task"];
             
@@ -212,7 +220,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     }
     
     // Clean-up
-    self.isActive = false;
+    _isActive = NO;
     
     // Drain
     if ([self.engine fetchJobCount] == 0) {
@@ -246,14 +254,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)errorWithMessage:(NSString *)message
 {
     NSLog(@"EDQueue Error: %@", message);
-}
-
-#pragma mark - Dealloc
-
-- (void)dealloc
-{    
-    self.delegate = nil;
-    _engine = nil;
 }
 
 @end

@@ -8,48 +8,44 @@
 
 #import <Foundation/Foundation.h>
 
-//
-
-typedef enum {
-    EDQueueResultSuccess,
+typedef NS_ENUM(NSInteger, EDQueueResult) {
+    EDQueueResultSuccess = 0,
     EDQueueResultFail,
     EDQueueResultCritical
-} EDQueueResult;
+};
 
-UIKIT_EXTERN NSString *const EDQueueDidStart;
-UIKIT_EXTERN NSString *const EDQueueDidStop;
-UIKIT_EXTERN NSString *const EDQueueJobDidSucceed;
-UIKIT_EXTERN NSString *const EDQueueJobDidFail;
-UIKIT_EXTERN NSString *const EDQueueDidDrain;
+typedef void (^EDQueueCompletionBlock)(EDQueueResult result);
 
-//
+extern NSString *const EDQueueDidStart;
+extern NSString *const EDQueueDidStop;
+extern NSString *const EDQueueJobDidSucceed;
+extern NSString *const EDQueueJobDidFail;
+extern NSString *const EDQueueDidDrain;
 
-@class EDQueue;
-
-@protocol EDQueueDelegate <NSObject>
-@optional
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
-@end
-
-//
-
+@protocol EDQueueDelegate;
 @interface EDQueue : NSObject
 
-@property (weak) id<EDQueueDelegate> delegate;
-@property (readonly) Boolean isRunning;
-@property (readonly) Boolean isActive;
-@property NSUInteger retryLimit;
-
 + (EDQueue *)sharedInstance;
-- (void)enqueueWithData:(id)data forTask:(NSString *)task;
 
+@property (nonatomic, weak) id<EDQueueDelegate> delegate;
+
+@property (nonatomic, readonly) BOOL isRunning;
+@property (nonatomic, readonly) BOOL isActive;
+@property (nonatomic) NSUInteger retryLimit;
+
+- (void)enqueueWithData:(id)data forTask:(NSString *)task;
 - (void)start;
 - (void)stop;
 - (void)empty;
 
-- (Boolean)jobExistsForTask:(NSString *)task;
-- (Boolean)jobIsActiveForTask:(NSString *)task;
+- (BOOL)jobExistsForTask:(NSString *)task;
+- (BOOL)jobIsActiveForTask:(NSString *)task;
 - (NSDictionary *)nextJobForTask:(NSString *)task;
 
+@end
+
+@protocol EDQueueDelegate <NSObject>
+@optional
+- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(EDQueueCompletionBlock)block;
 @end

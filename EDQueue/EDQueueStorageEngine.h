@@ -8,17 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FMDatabase.h"
-#import "FMDatabaseAdditions.h"
-#import "FMDatabasePool.h"
-#import "FMDatabaseQueue.h"
-
+@class FMDatabaseQueue;
 @interface EDQueueStorageEngine : NSObject
 
 @property (retain) FMDatabaseQueue *queue;
 
 - (void)createJob:(id)data forTask:(id)task;
-- (Boolean)jobExistsForTask:(id)task;
+- (BOOL)jobExistsForTask:(id)task;
 - (void)incrementAttemptForJob:(NSNumber *)jid;
 - (void)removeJob:(NSNumber *)jid;
 - (void)removeAllJobs;
