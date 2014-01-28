@@ -30,11 +30,9 @@
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
         [self.queue inDatabase:^(FMDatabase *db) {
             [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
-            [self databaseHadError:[db hadError] fromDatabase:db];
+            [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
     }
-    
-
     
     return self;
 }
@@ -55,13 +53,12 @@
  * @return {void}
  */
 - (void)createJob:(id)data forTask:(id)task
-
 {
     NSString *dataString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
     
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"INSERT INTO queue (task, data) VALUES (?, ?)", task, dataString];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
 
@@ -72,13 +69,13 @@
  *
  * @return {BOOL}
  */
-- (Boolean)jobExistsForTask:(id)task
+- (BOOL)jobExistsForTask:(id)task
 {
-    __block Boolean jobExists = NO;
+    __block BOOL jobExists = NO;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
             jobExists |= ([rs intForColumn:@"count"] > 0);
@@ -101,7 +98,7 @@
 {
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"UPDATE queue SET attempts = attempts + 1 WHERE id = ?", jid];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
 
@@ -116,10 +113,9 @@
 {
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"DELETE FROM queue WHERE id = ?", jid];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
-
 
 /**
  * Removes all pending jobs from the datastore
@@ -130,7 +126,7 @@
 - (void)removeAllJobs {
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"DELETE FROM queue"];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
 
@@ -145,7 +141,7 @@
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue"];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
             count = [rs intForColumn:@"count"];
@@ -168,10 +164,10 @@
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
-            job = [self jobFromResultSet:rs];
+            job = [self _jobFromResultSet:rs];
         }
         
         [rs close];
@@ -193,10 +189,10 @@
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
-        [self databaseHadError:[db hadError] fromDatabase:db];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
-            job = [self jobFromResultSet:rs];
+            job = [self _jobFromResultSet:rs];
         }
         
         [rs close];
@@ -207,7 +203,7 @@
 
 #pragma mark - Private methods
 
-- (NSDictionary *)jobFromResultSet:(FMResultSet *)rs
+- (NSDictionary *)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *job = @{
         @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
@@ -219,7 +215,7 @@
     return job;
 }
 
-- (Boolean)databaseHadError:(Boolean)flag fromDatabase:(FMDatabase *)db
+- (BOOL)_databaseHadError:(BOOL)flag fromDatabase:(FMDatabase *)db
 {
     if (flag) NSLog(@"Queue Database Error %d: %@", [db lastErrorCode], [db lastErrorMessage]);
     return flag;

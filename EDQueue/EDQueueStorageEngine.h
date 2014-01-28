@@ -14,7 +14,7 @@
 @property (retain) FMDatabaseQueue *queue;
 
 - (void)createJob:(id)data forTask:(id)task;
-- (Boolean)jobExistsForTask:(id)task;
+- (BOOL)jobExistsForTask:(id)task;
 - (void)incrementAttemptForJob:(NSNumber *)jid;
 - (void)removeJob:(NSNumber *)jid;
 - (void)removeAllJobs;
