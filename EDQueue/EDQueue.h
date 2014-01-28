@@ -10,11 +10,11 @@
 
 //
 
-typedef enum {
-    EDQueueResultSuccess,
+typedef NS_ENUM(NSInteger, EDQueueResult) {
+    EDQueueResultSuccess = 0,
     EDQueueResultFail,
     EDQueueResultCritical
-} EDQueueResult;
+};
 
 UIKIT_EXTERN NSString *const EDQueueDidStart;
 UIKIT_EXTERN NSString *const EDQueueDidStop;
