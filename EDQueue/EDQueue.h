@@ -16,11 +16,11 @@ typedef NS_ENUM(NSInteger, EDQueueResult) {
     EDQueueResultCritical
 };
 
-UIKIT_EXTERN NSString *const EDQueueDidStart;
-UIKIT_EXTERN NSString *const EDQueueDidStop;
-UIKIT_EXTERN NSString *const EDQueueJobDidSucceed;
-UIKIT_EXTERN NSString *const EDQueueJobDidFail;
-UIKIT_EXTERN NSString *const EDQueueDidDrain;
+extern NSString *const EDQueueDidStart;
+extern NSString *const EDQueueDidStop;
+extern NSString *const EDQueueJobDidSucceed;
+extern NSString *const EDQueueJobDidFail;
+extern NSString *const EDQueueDidDrain;
 
 //
 
