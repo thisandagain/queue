@@ -48,8 +48,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     self = [super init];
     if (self) {
         _engine     = [[EDQueueStorageEngine alloc] init];
-        _isRunning  = false;
-        _isActive   = false;
         _retryLimit = 4;
     }
     return self;
