@@ -22,18 +22,7 @@ extern NSString *const EDQueueJobDidSucceed;
 extern NSString *const EDQueueJobDidFail;
 extern NSString *const EDQueueDidDrain;
 
-//
-
-@class EDQueue;
-
-@protocol EDQueueDelegate <NSObject>
-@optional
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
-@end
-
-//
-
+@protocol EDQueueDelegate;
 @interface EDQueue : NSObject
 
 @property (weak) id<EDQueueDelegate> delegate;
@@ -52,4 +41,10 @@ extern NSString *const EDQueueDidDrain;
 - (Boolean)jobIsActiveForTask:(NSString *)task;
 - (NSDictionary *)nextJobForTask:(NSString *)task;
 
+@end
+
+@protocol EDQueueDelegate <NSObject>
+@optional
+- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
 @end
