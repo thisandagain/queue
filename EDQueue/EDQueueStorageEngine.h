@@ -8,11 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FMDatabase.h"
-#import "FMDatabaseAdditions.h"
-#import "FMDatabasePool.h"
-#import "FMDatabaseQueue.h"
-
+@class FMDatabaseQueue;
 @interface EDQueueStorageEngine : NSObject
 
 @property (retain) FMDatabaseQueue *queue;
