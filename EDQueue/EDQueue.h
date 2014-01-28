@@ -16,6 +16,8 @@ typedef NS_ENUM(NSInteger, EDQueueResult) {
     EDQueueResultCritical
 };
 
+typedef void (^EDQueueCompletionBlock)(EDQueueResult result);
+
 extern NSString *const EDQueueDidStart;
 extern NSString *const EDQueueDidStop;
 extern NSString *const EDQueueJobDidSucceed;
@@ -46,5 +48,5 @@ extern NSString *const EDQueueDidDrain;
 @protocol EDQueueDelegate <NSObject>
 @optional
 - (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(EDQueueCompletionBlock)block;
 @end
