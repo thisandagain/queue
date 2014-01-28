@@ -17,17 +17,23 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 @interface EDQueue ()
 {
+    BOOL _isRunning;
+    BOOL _isActive;
+    NSUInteger _retryLimit;
 }
 
-@property EDQueueStorageEngine *engine;
-@property (readwrite) Boolean isRunning;
-@property (readwrite) Boolean isActive;
-@property (readwrite) NSString *activeTask;
+@property (nonatomic) EDQueueStorageEngine *engine;
+@property (nonatomic, readwrite) NSString *activeTask;
+
 @end
 
 //
 
 @implementation EDQueue
+
+@synthesize isRunning = _isRunning;
+@synthesize isActive = _isActive;
+@synthesize retryLimit = _retryLimit;
 
 #pragma mark - Singleton
 
@@ -77,9 +83,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {Boolean}
  */
-- (Boolean)jobExistsForTask:(NSString *)task
+- (BOOL)jobExistsForTask:(NSString *)task
 {
-    Boolean jobExists = [self.engine jobExistsForTask:task];
+    BOOL jobExists = [self.engine jobExistsForTask:task];
     return jobExists;
 }
 
@@ -90,9 +96,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {Boolean}
  */
-- (Boolean)jobIsActiveForTask:(NSString *)task
+- (BOOL)jobIsActiveForTask:(NSString *)task
 {
-    Boolean jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
+    BOOL jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
     return jobIsActive;
 }
 
@@ -117,7 +123,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)start
 {
     if (!self.isRunning) {
-        self.isRunning = true;
+        _isRunning = YES;
         [self tick];
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
@@ -132,7 +138,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)stop
 {
     if (self.isRunning) {
-        self.isRunning = false;
+        _isRunning = YES;
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStop, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }
@@ -164,7 +170,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     dispatch_async(gcd, ^{
         if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
             // Start job
-            self.isActive = true;
+            _isActive = YES;
             id job = [self.engine fetchJob];
             self.activeTask = [(NSDictionary *)job objectForKey:@"task"];
             
@@ -208,7 +214,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     }
     
     // Clean-up
-    self.isActive = false;
+    _isActive = NO;
     
     // Drain
     if ([self.engine fetchJobCount] == 0) {
