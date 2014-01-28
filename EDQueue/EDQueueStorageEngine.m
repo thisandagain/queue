@@ -39,6 +39,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    _queue = nil;
+}
+
 #pragma mark - Public methods
 
 /**
@@ -218,13 +223,6 @@
 {
     if (flag) NSLog(@"Queue Database Error %d: %@", [db lastErrorCode], [db lastErrorMessage]);
     return flag;
-}
-
-#pragma mark - Dealloc
-
-- (void)dealloc
-{
-    _queue = nil;
 }
 
 @end
