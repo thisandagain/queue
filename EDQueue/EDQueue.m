@@ -59,6 +59,12 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     return self;
 }
 
+- (void)dealloc
+{    
+    self.delegate = nil;
+    _engine = nil;
+}
+
 #pragma mark - Public methods
 
 /**
@@ -248,14 +254,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)errorWithMessage:(NSString *)message
 {
     NSLog(@"EDQueue Error: %@", message);
-}
-
-#pragma mark - Dealloc
-
-- (void)dealloc
-{    
-    self.delegate = nil;
-    _engine = nil;
 }
 
 @end
