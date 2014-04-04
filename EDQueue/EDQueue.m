@@ -144,7 +144,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)stop
 {
     if (self.isRunning) {
-        _isRunning = YES;
+        _isRunning = NO;
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStop, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }
