@@ -24,7 +24,7 @@
         // Database path
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueueDME001_0.5.0d.db"];
+        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0e.db"];
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
