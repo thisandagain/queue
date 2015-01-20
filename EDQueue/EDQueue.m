@@ -83,7 +83,28 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 /**
- * Returns true if a job exists for this task.
+ * Adds a new scheduled job to the queue.
+ *
+ * @param {id} Data
+ * @param {NSString} Task label
+ * @param {NSDate} Run After
+ *
+ * @return {void}
+ */
+- (void)enqueueWithData:(id)data forTask:(NSString *)task runAfter:(NSDate*)runAfter
+{
+    if (!runAfter)
+    {
+        [self enqueueWithData:data forTask:task];
+        return;
+    }
+    
+    if (data == nil) data = @{};
+    [self.engine createJob:data forTask:task runAfter:runAfter];
+    [self tick];
+}
+
+/** * Returns true if a job exists for this task.
  *
  * @param {NSString} Task label
  *

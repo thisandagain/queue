@@ -34,6 +34,8 @@ extern NSString *const EDQueueDidDrain;
 @property (nonatomic) NSUInteger retryLimit;
 
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
+- (void)enqueueWithData:(id)data forTask:(NSString *)task runAfter:(NSDate*)runAfter;
+
 - (void)start;
 - (void)stop;
 - (void)empty;
