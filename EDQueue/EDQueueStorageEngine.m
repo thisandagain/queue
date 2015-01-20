@@ -24,12 +24,12 @@
         // Database path
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0d.db"];
+        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0e.db"];
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
         [self.queue inDatabase:^(FMDatabase *db) {
-            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
+            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, runafter TEXT DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
             [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
     }
@@ -58,6 +58,25 @@
     
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"INSERT INTO queue (task, data) VALUES (?, ?)", task, dataString];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+    }];
+}
+
+/**
+ * Creates a new scheduled job within the datastore.
+ *
+ * @param {NSString} Data (JSON string)
+ * @param {NSString} Task name
+ * @param {NSDate} Run After
+ *
+ * @return {void}
+ */
+- (void)createJob:(id)data forTask:(id)task runAfter:(NSDate*)runAfter
+{
+    NSString *dataString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        [db executeUpdate:@"INSERT INTO queue (task, data, runAfter) VALUES (?, ?, ?)", task, dataString, runAfter];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -140,7 +159,7 @@
     __block NSUInteger count = 0;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue"];
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE runafter <= strftime('%s','now')"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -163,7 +182,7 @@
     __block id job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE runafter <= strftime('%s','now') ORDER BY id ASC LIMIT 1"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -188,7 +207,7 @@
     __block id job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? AND runafter <= strftime('%s','now')ORDER BY id ASC LIMIT 1", task];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -210,7 +229,8 @@
         @"task":        [rs stringForColumn:@"task"],
         @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
         @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-        @"stamp":       [rs stringForColumn:@"stamp"]
+        @"stamp":       [rs stringForColumn:@"stamp"],
+        @"runafter":    [rs dateForColumn:@"runafter"]
     };
     return job;
 }
