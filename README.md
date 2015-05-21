@@ -141,5 +141,8 @@ EDQueueJobDidFail
 ### iOS Support
 EDQueue is designed for iOS 5 and up.
 
+### OSX Support
+EDQueue works with at least OSX 10.8 and up.
+
 ### ARC
 EDQueue is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
