@@ -14,12 +14,34 @@
 
 @implementation AppDelegate
 
+- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
+{
+    sleep(1);
+    
+    @try {
+        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+            block(EDQueueResultSuccess);
+        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+            block(EDQueueResultFail);
+        } else {
+            block(EDQueueResultCritical);
+        }
+    }
+    @catch (NSException *exception) {
+        block(EDQueueResultCritical);
+    }
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Insert code here to initialize your application
+    // Insert code here to initialize your application    
+    
+    [[EDQueue sharedInstance] setDelegate:self];
+    [[EDQueue sharedInstance] start];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
+    [[EDQueue sharedInstance] stop];
 }
 
 @end

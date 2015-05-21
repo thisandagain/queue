@@ -7,8 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "EDQueue.h"
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@class ViewController;
+
+@interface AppDelegate : NSObject <NSApplicationDelegate, EDQueueDelegate>
 
 
 @end

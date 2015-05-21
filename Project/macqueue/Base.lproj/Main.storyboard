@@ -653,7 +653,7 @@
                     <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="320"/>
+                        <rect key="contentRect" x="196" y="240" width="480" height="480"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                     </window>
                     <connections>
@@ -669,7 +669,7 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
+                        <rect key="frame" x="0.0" y="0.0" width="480" height="480"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fQm-Qc-4M7">
@@ -678,6 +678,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="addSuccess:" target="XfG-lQ-9wD" id="6gf-hO-yvU"/>
+                                </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LwI-Un-ts7">
                                 <rect key="frame" x="149" y="46" width="182" height="32"/>
@@ -685,6 +688,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="addFail:" target="XfG-lQ-9wD" id="FjA-WL-hEU"/>
+                                </connections>
                             </button>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dIY-Ic-C5r">
                                 <rect key="frame" x="149" y="13" width="182" height="32"/>
@@ -692,21 +698,24 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="addCritical:" target="XfG-lQ-9wD" id="ote-ou-usG"/>
+                                </connections>
                             </button>
                             <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZrJ-VG-Xzd">
-                                <rect key="frame" x="20" y="127" width="440" height="173"/>
+                                <rect key="frame" x="20" y="127" width="440" height="333"/>
                                 <clipView key="contentView" id="dMq-lt-WYm">
                                     <rect key="frame" x="1" y="1" width="238" height="133"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="CtV-Zl-m6K">
-                                            <rect key="frame" x="0.0" y="0.0" width="240" height="133"/>
+                                        <textView editable="NO" importsGraphics="NO" findStyle="panel" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" id="CtV-Zl-m6K">
+                                            <rect key="frame" x="0.0" y="0.0" width="240" height="171"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                            <size key="minSize" width="438" height="171"/>
+                                            <size key="minSize" width="438" height="331"/>
                                             <size key="maxSize" width="485" height="10000000"/>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="438" height="171"/>
+                                            <size key="minSize" width="438" height="331"/>
                                             <size key="maxSize" width="485" height="10000000"/>
                                         </textView>
                                     </subviews>
@@ -737,10 +746,13 @@
                             <constraint firstItem="ZrJ-VG-Xzd" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="vsi-Hj-Qvl"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="activity" destination="CtV-Zl-m6K" id="jE0-rd-xdE"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75.5" y="677"/>
+            <point key="canvasLocation" x="697" y="250"/>
         </scene>
     </scenes>
 </document>
