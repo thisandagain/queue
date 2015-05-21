@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, EDQueueResult) {
     EDQueueResultSuccess = 0,
