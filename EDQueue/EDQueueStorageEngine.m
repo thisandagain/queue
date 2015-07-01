@@ -17,14 +17,14 @@
 
 #pragma mark - Init
 
-- (id)init
+- (id)initWithPath:(NSString *)inputPath
 {
     self = [super init];
     if (self) {
         // Database path
         NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
         NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0d.db"];
+        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:inputPath];
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];

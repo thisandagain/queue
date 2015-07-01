@@ -26,6 +26,8 @@ extern NSString *const EDQueueDidDrain;
 @interface EDQueue : NSObject
 
 + (EDQueue *)sharedInstance;
++ (NSString *)defaultPath;
+- (id)initWithPath:(NSString *)path;
 
 @property (nonatomic, weak) id<EDQueueDelegate> delegate;
 
