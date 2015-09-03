@@ -123,6 +123,28 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 /**
+ * Returns the number of jobs for task
+ *
+ * @param {NSString} Task label
+ *
+ * @return {NSUinteger}
+ */
+- (NSUInteger)jobCountForTask:(NSString *)task
+{
+    return [self.engine jobCountForTask:task];
+}
+
+/**
+ * Returns the total number of jobs
+ *
+ * @return {NSUinteger}
+ */
+- (NSUInteger)totalJobCount
+{
+    return [self.engine fetchJobCount];
+}
+
+/**
  * Starts the queue.
  *
  * @return {void}
@@ -131,7 +153,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (!self.isRunning) {
         _isRunning = YES;
-        _jobCount = [self.engine fetchJobCount];
+//        _jobCount = [self.engine fetchJobCount];
         [self tick];
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
@@ -147,7 +169,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (self.isRunning) {
         _isRunning = NO;
-        _jobCount = [self.engine fetchJobCount];
+//        _jobCount = [self.engine fetchJobCount];
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStop, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }

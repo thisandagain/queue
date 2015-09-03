@@ -71,21 +71,32 @@
  */
 - (BOOL)jobExistsForTask:(id)task
 {
-    __block BOOL jobExists = NO;
-    
+    return [self jobCountForTask:task] > 0;
+}
+
+/**
+  + * Returns the number of jobs for the specified task name.
+  + *
+  + * @param {NSString} Task name
+  + *
+  + * @return {NSUinteger}
+  + */
+- (NSUInteger)jobCountForTask:(id)task
+{
+    __block NSUInteger jobCount = 0;
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
-            jobExists |= ([rs intForColumn:@"count"] > 0);
+            jobCount = [rs intForColumn:@"count"];
         }
-        
         [rs close];
     }];
     
-    return jobExists;
+    return jobCount;
 }
+
 
 /**
  * Increments the "attempts" column for a specified job.
