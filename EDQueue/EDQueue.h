@@ -32,7 +32,6 @@ extern NSString *const EDQueueDidDrain;
 @property (nonatomic, readonly) BOOL isRunning;
 @property (nonatomic, readonly) BOOL isActive;
 @property (nonatomic) NSUInteger retryLimit;
-@property (nonatomic, readonly) NSUInteger jobCount;
 
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
 - (void)start;
