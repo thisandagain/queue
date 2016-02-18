@@ -13,6 +13,67 @@
 #import "FMDatabasePool.h"
 #import "FMDatabaseQueue.h"
 
+#import "EDQueueStorageJob.h"
+
+
+//static NSString *sql_createTableIfNotExists()
+//{
+//    return [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS queue (%@ INTEGER PRIMARY KEY, %@ TEXT NOT NULL, %@ TEXT NOT NULL, %@ INTEGER DEFAULT 0, %@ STRING DEFAULT (strftime('%%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)",EDQueueStorageJobIdKey, EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey, EDQueueStorageJobAttemptsKey, EDQueueStorageJobStampKey];
+//}
+//
+//static NSString *sql_createJob()
+//{
+//    return [NSString stringWithFormat:@"INSERT INTO queue (%@, %@) VALUES (?, ?)", EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey ];
+//}
+//
+//static NSString *sql_deleteJob()
+//{
+//    return [NSString stringWithFormat:@"DELETE FROM queue WHERE %@ = ?", EDQueueStorageJobIdKey];
+//}
+//
+//static NSString *sql_jobExistsForTask;
+//static NSString *sql_incrementAttemptForJob;
+//static NSString *sql_fetchJobCount;
+//static NSString *sql_fetchJob;
+//static NSString *sql_fetchJobForTask;
+//static NSString *sql_deleteAllJobs;
+
+@interface EDQueueStorageJob(FMResultSet)
+
+-(instancetype)initWithFMResultSet:(FMResultSet *)resutSet;
+
+@end
+
+@implementation EDQueueStorageJob(FMResultSet)
+
+- (instancetype)initWithFMResultSet:(FMResultSet *)rs
+{
+    NSString *json = [rs stringForColumn:@"data"];
+
+    NSString *data = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                                     options:NSJSONReadingMutableContainers
+                                                       error:nil];
+
+    NSDictionary *job = @{
+                          EDQueueStorageJobIdKey : [NSNumber numberWithInt:[rs intForColumn:@"id"]],
+                          EDQueueStorageJobTaskKey : [rs stringForColumn:@"task"],
+                          EDQueueStorageJobTaskKey : data,
+                          EDQueueStorageJobAttemptsKey: [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
+                          EDQueueStorageJobStampKey: [rs stringForColumn:@"stamp"]
+                          };
+
+    return [self initWithDictionary:job];
+}
+
+@end
+
+
+
+@interface EDQueueStorageEngine()
+
+
+@end
+
 @implementation EDQueueStorageEngine
 
 #pragma mark - Init
@@ -28,6 +89,10 @@
         
         // Allocate the queue
         _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
+
+
+//        NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS queue (%@ INTEGER PRIMARY KEY, %@ TEXT NOT NULL, %@ TEXT NOT NULL, %@ INTEGER DEFAULT 0, %@ STRING DEFAULT (strftime('%%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)",EDQueueStorageJobIdKey, EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey, EDQueueStorageJobAttemptsKey, EDQueueStorageJobStampKey];
+
         [self.queue inDatabase:^(FMDatabase *db) {
             [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
             [self _databaseHadError:[db hadError] fromDatabase:db];

@@ -6,7 +6,9 @@
 //  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, EDQueueResult) {
     EDQueueResultSuccess = 0,
@@ -22,7 +24,12 @@ extern NSString *const EDQueueJobDidSucceed;
 extern NSString *const EDQueueJobDidFail;
 extern NSString *const EDQueueDidDrain;
 
+extern NSString *const EDQueueNameKey;
+extern NSString *const EDQueueDataKey;
+
+
 @protocol EDQueueDelegate;
+
 @interface EDQueue : NSObject
 
 + (EDQueue *)sharedInstance;
@@ -33,7 +40,7 @@ extern NSString *const EDQueueDidDrain;
 @property (nonatomic, readonly) BOOL isActive;
 @property (nonatomic) NSUInteger retryLimit;
 
-- (void)enqueueWithData:(id)data forTask:(NSString *)task;
+- (void)enqueueWithData:(nullable NSDictionary *)data forTask:(NSString *)task;
 - (void)start;
 - (void)stop;
 - (void)empty;
@@ -49,3 +56,5 @@ extern NSString *const EDQueueDidDrain;
 - (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
 - (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(EDQueueCompletionBlock)block;
 @end
+
+NS_ASSUME_NONNULL_END

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7CA53AF41C75F88E00420814 /* EDQueueStorageJob.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CA53AF31C75F88E00420814 /* EDQueueStorageJob.m */; };
 		C32F6E07160795C3004BA8A1 /* EDQueue.podspec in Resources */ = {isa = PBXBuildFile; fileRef = C32F6E06160795C3004BA8A1 /* EDQueue.podspec */; };
 		C32F6E0C16079680004BA8A1 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */; };
 		C32F6E191607AC35004BA8A1 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = C32F6E101607AC35004BA8A1 /* FMDatabase.m */; };
@@ -29,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7CA53AF21C75F88E00420814 /* EDQueueStorageJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDQueueStorageJob.h; path = ../EDQueue/EDQueueStorageJob.h; sourceTree = "<group>"; };
+		7CA53AF31C75F88E00420814 /* EDQueueStorageJob.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDQueueStorageJob.m; path = ../EDQueue/EDQueueStorageJob.m; sourceTree = "<group>"; };
 		C32F6E06160795C3004BA8A1 /* EDQueue.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = EDQueue.podspec; path = ../EDQueue.podspec; sourceTree = "<group>"; };
 		C32F6E0B16079680004BA8A1 /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
 		C32F6E0F1607AC35004BA8A1 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
@@ -84,6 +87,8 @@
 				C395D533159E57880041510C /* EDQueue.m */,
 				C32F6E221607E1FB004BA8A1 /* EDQueueStorageEngine.h */,
 				C32F6E231607E1FB004BA8A1 /* EDQueueStorageEngine.m */,
+				7CA53AF21C75F88E00420814 /* EDQueueStorageJob.h */,
+				7CA53AF31C75F88E00420814 /* EDQueueStorageJob.m */,
 			);
 			name = EDQueue;
 			sourceTree = "<group>";
@@ -238,6 +243,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7CA53AF41C75F88E00420814 /* EDQueueStorageJob.m in Sources */,
 				C395D519159E56760041510C /* main.m in Sources */,
 				C395D51D159E56760041510C /* EDAppDelegate.m in Sources */,
 				C395D520159E56760041510C /* EDViewController.m in Sources */,
