@@ -18,6 +18,14 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 NSString *const EDQueueNameKey = @"name";
 NSString *const EDQueueDataKey = @"data";
 
+
+NSString *const EDQueueStorageJobIdKey = @"id";
+NSString *const EDQueueStorageJobTaskKey = @"task";
+NSString *const EDQueueStorageJobDataKey = @"data";
+NSString *const EDQueueStorageJobAttemptsKey = @"atempts";
+NSString *const EDQueueStorageJobStampKey = @"stamp";
+
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueue ()
@@ -80,10 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return {void}
  */
-- (void)enqueueWithData:(nullable NSDictionary *)data forTask:(NSString *)task
+- (void)enqueueJob:(EDQueueJob *)job
 {
-    if (data == nil) data = @{};
-    [self.engine createJob:data forTask:task];
+    [self.engine createJob:job];
     [self tick];
 }
 
@@ -120,9 +127,9 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return {NSArray}
  */
-- (NSDictionary *)nextJobForTask:(NSString *)task
+- (nullable EDQueueJob *)nextJobForTask:(NSString *)task
 {
-    NSDictionary *nextJobForTask = [self.engine fetchJobForTask:task];
+    EDQueueJob *nextJobForTask = [self.engine fetchJobForTask:task];
     return nextJobForTask;
 }
 
@@ -190,73 +197,48 @@ NS_ASSUME_NONNULL_BEGIN
         if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
             // Start job
             _isActive = YES;
-            NSDictionary *job = [self.engine fetchJob];
-            self.activeTask = [job objectForKey:@"task"];
+            EDQueueJob *job = [self.engine fetchJob];
+            self.activeTask = job.task;
             
             // Pass job to delegate
-            if ([self.delegate respondsToSelector:@selector(queue:processJob:completion:)]) {
                 [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
                     [self processJob:job withResult:result];
                     self.activeTask = nil;
                 }];
-            } else {
-                EDQueueResult result = [self.delegate queue:self processJob:job];
-                [self processJob:job withResult:result];
-                self.activeTask = nil;
-            }
         }
     });
 }
 
-- (void)processJob:(NSDictionary*)job withResult:(EDQueueResult)result
+- (void)processJob:(EDQueueJob*)job withResult:(EDQueueResult)result
 {
-    if (!job) {
-        job = @{};
-    }
     // Check result
     switch (result) {
         case EDQueueResultSuccess:
-
-//            NSDictionary *object = @{
-//                                     EDQueueNameKey : EDQueueJobDidSucceed,
-//                                     EDQueueDataKey : job
-//                                     };
-            //[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidSucceed, EDQueueNameKey, job, EDQueueDataKey, nil]
-
-//            [self performSelectorOnMainThread:@selector(postNotification:)
-//                                   withObject:@{
-//                                                EDQueueNameKey : EDQueueJobDidSucceed,
-//                                                EDQueueDataKey : job
-//                                                }
-//                                waitUntilDone:false];
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidSucceed,
                                                  EDQueueDataKey : job
                                                  }];
 
-            [self.engine removeJob:[job objectForKey:@"id"]];
+            [self.engine removeJob:job];
             break;
 
         case EDQueueResultFail:
-//            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, EDQueueNameKey, job, EDQueueDataKey, nil] waitUntilDone:true];
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidFail,
                                                  EDQueueDataKey : job
                                                  }];
 
-            NSUInteger currentAttempt = [[job objectForKey:@"attempts"] intValue] + 1;
+            NSUInteger currentAttempt = job.attempts.integerValue + 1;
 
             if (currentAttempt < self.retryLimit) {
-                [self.engine incrementAttemptForJob:[job objectForKey:@"id"]];
+                [self.engine incrementAttemptForJob:job];
             } else {
-                [self.engine removeJob:[job objectForKey:@"id"]];
+                [self.engine removeJob:job];
             }
             break;
         case EDQueueResultCritical:
-
-//            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, EDQueueNameKey, job, EDQueueDataKey, nil] waitUntilDone:false];
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidFail,
@@ -264,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  }];
 
             [self errorWithMessage:@"Critical error. Job canceled."];
-            [self.engine removeJob:[job objectForKey:@"id"]];
+            [self.engine removeJob:job];
             break;
     }
     
@@ -273,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
     
     // Drain
     if ([self.engine fetchJobCount] == 0) {
-//        [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidDrain, EDQueueNameKey, nil, EDQueueDataKey, nil] waitUntilDone:false];
+
         [self postNotificationOnMainThread:@{
                                              EDQueueNameKey : EDQueueDidDrain,
                                              }];

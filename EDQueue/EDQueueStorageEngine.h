@@ -6,20 +6,23 @@
 //  Copyright (c) 2012 DIY, Co. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
-@class FMDatabaseQueue;
+NS_ASSUME_NONNULL_BEGIN
+
+@class EDQueueJob;
+
 @interface EDQueueStorageEngine : NSObject
 
-@property (retain) FMDatabaseQueue *queue;
-
-- (void)createJob:(NSDictionary *)data forTask:(id)task;
-- (BOOL)jobExistsForTask:(id)task;
-- (void)incrementAttemptForJob:(NSNumber *)jid;
-- (void)removeJob:(NSNumber *)jid;
+- (void)createJob:(EDQueueJob *)job;
+- (BOOL)jobExistsForTask:(NSString *)task;
+- (void)incrementAttemptForJob:(EDQueueJob *)jid;
+- (void)removeJob:(EDQueueJob *)jid;
 - (void)removeAllJobs;
 - (NSUInteger)fetchJobCount;
-- (NSDictionary *)fetchJob;
-- (NSDictionary *)fetchJobForTask:(id)task;
+- (nullable EDQueueJob *)fetchJob;
+- (nullable EDQueueJob *)fetchJobForTask:(NSString *)task;
 
 @end
+
+NS_ASSUME_NONNULL_END

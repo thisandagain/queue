@@ -13,64 +13,13 @@
 #import "FMDatabasePool.h"
 #import "FMDatabaseQueue.h"
 
-#import "EDQueueStorageJob.h"
+#import "EDQueueJob.h"
 
-
-//static NSString *sql_createTableIfNotExists()
-//{
-//    return [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS queue (%@ INTEGER PRIMARY KEY, %@ TEXT NOT NULL, %@ TEXT NOT NULL, %@ INTEGER DEFAULT 0, %@ STRING DEFAULT (strftime('%%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)",EDQueueStorageJobIdKey, EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey, EDQueueStorageJobAttemptsKey, EDQueueStorageJobStampKey];
-//}
-//
-//static NSString *sql_createJob()
-//{
-//    return [NSString stringWithFormat:@"INSERT INTO queue (%@, %@) VALUES (?, ?)", EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey ];
-//}
-//
-//static NSString *sql_deleteJob()
-//{
-//    return [NSString stringWithFormat:@"DELETE FROM queue WHERE %@ = ?", EDQueueStorageJobIdKey];
-//}
-//
-//static NSString *sql_jobExistsForTask;
-//static NSString *sql_incrementAttemptForJob;
-//static NSString *sql_fetchJobCount;
-//static NSString *sql_fetchJob;
-//static NSString *sql_fetchJobForTask;
-//static NSString *sql_deleteAllJobs;
-
-@interface EDQueueStorageJob(FMResultSet)
-
--(instancetype)initWithFMResultSet:(FMResultSet *)resutSet;
-
-@end
-
-@implementation EDQueueStorageJob(FMResultSet)
-
-- (instancetype)initWithFMResultSet:(FMResultSet *)rs
-{
-    NSString *json = [rs stringForColumn:@"data"];
-
-    NSString *data = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
-                                                     options:NSJSONReadingMutableContainers
-                                                       error:nil];
-
-    NSDictionary *job = @{
-                          EDQueueStorageJobIdKey : [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-                          EDQueueStorageJobTaskKey : [rs stringForColumn:@"task"],
-                          EDQueueStorageJobTaskKey : data,
-                          EDQueueStorageJobAttemptsKey: [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-                          EDQueueStorageJobStampKey: [rs stringForColumn:@"stamp"]
-                          };
-
-    return [self initWithDictionary:job];
-}
-
-@end
-
-
+NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueueStorageEngine()
 
+@property (retain) FMDatabaseQueue *queue;
 
 @end
 
@@ -117,12 +66,21 @@
  *
  * @return {void}
  */
-- (void)createJob:(id)data forTask:(id)task
+//- (void)createJob:(id)data forTask:(id)task
+- (void)createJob:(EDQueueJob *)job
 {
-    NSString *dataString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+    NSString *dataString = nil;
+
+    if (job.userInfo) {
+        NSData *data = [NSJSONSerialization dataWithJSONObject:job.userInfo
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:nil];
+
+        dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"INSERT INTO queue (task, data) VALUES (?, ?)", task, dataString];
+        [db executeUpdate:@"INSERT INTO queue (task, data) VALUES (?, ?)", job.task, dataString];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -134,7 +92,7 @@
  *
  * @return {BOOL}
  */
-- (BOOL)jobExistsForTask:(id)task
+- (BOOL)jobExistsForTask:(NSString *)task
 {
     __block BOOL jobExists = NO;
     
@@ -159,10 +117,14 @@
  *
  * @return {void}
  */
-- (void)incrementAttemptForJob:(NSNumber *)jid
+- (void)incrementAttemptForJob:(EDQueueJob *)job
 {
+    if (!job.jobID) {
+        return;
+    }
+
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"UPDATE queue SET attempts = attempts + 1 WHERE id = ?", jid];
+        [db executeUpdate:@"UPDATE queue SET attempts = attempts + 1 WHERE id = ?", job.jobID];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -174,10 +136,14 @@
  *
  * @return {void}
  */
-- (void)removeJob:(NSNumber *)jid
+- (void)removeJob:(EDQueueJob *)job
 {
+    if (!job.jobID) {
+        return;
+    }
+
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"DELETE FROM queue WHERE id = ?", jid];
+        [db executeUpdate:@"DELETE FROM queue WHERE id = ?", job.jobID];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -223,9 +189,9 @@
  *
  * @return {NSDictionary}
  */
-- (NSDictionary *)fetchJob
+- (nullable EDQueueJob *)fetchJob
 {
-    __block id job;
+    __block EDQueueJob *job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
@@ -248,9 +214,9 @@
  *
  * @return {NSDictionary}
  */
-- (NSDictionary *)fetchJobForTask:(id)task
+- (nullable EDQueueJob *)fetchJobForTask:(NSString *)task
 {
-    __block id job;
+    __block EDQueueJob *job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
@@ -268,15 +234,27 @@
 
 #pragma mark - Private methods
 
-- (NSDictionary *)_jobFromResultSet:(FMResultSet *)rs
+- (EDQueueJob *)_jobFromResultSet:(FMResultSet *)rs
 {
-    NSDictionary *job = @{
-        @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-        @"task":        [rs stringForColumn:@"task"],
-        @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
-        @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-        @"stamp":       [rs stringForColumn:@"stamp"]
-    };
+    NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+
+
+//    NSDictionary *job = @{
+//        @"id": [NSNumber numberWithInt:[rs intForColumn:@"id"]],
+//        @"task" :        [rs stringForColumn:@"task"],
+//        @"userInfo" :      slob,
+//        @"attempts" : [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
+//        @"stamp":     [rs stringForColumn:@"stamp"]
+//    };
+
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:[rs stringForColumn:@"task"]
+                                              userInfo:userInfo
+                                                 jobID:@([rs intForColumn:@"id"])
+                                               atempts:@([rs intForColumn:@"attempts"])
+                                             timeStamp:[rs stringForColumn:@"stamp"]];
+
+
+
     return job;
 }
 
@@ -287,3 +265,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

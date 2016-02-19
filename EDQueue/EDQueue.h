@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "EDQueueJob.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, EDQueueResult) {
@@ -40,21 +42,19 @@ extern NSString *const EDQueueDataKey;
 @property (nonatomic, readonly) BOOL isActive;
 @property (nonatomic) NSUInteger retryLimit;
 
-- (void)enqueueWithData:(nullable NSDictionary *)data forTask:(NSString *)task;
+- (void)enqueueJob:(EDQueueJob *)job;
 - (void)start;
 - (void)stop;
 - (void)empty;
 
 - (BOOL)jobExistsForTask:(NSString *)task;
 - (BOOL)jobIsActiveForTask:(NSString *)task;
-- (NSDictionary *)nextJobForTask:(NSString *)task;
+- (nullable EDQueueJob *)nextJobForTask:(NSString *)task;
 
 @end
 
 @protocol EDQueueDelegate <NSObject>
-@optional
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(EDQueueCompletionBlock)block;
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(EDQueueCompletionBlock)block;
 @end
 
 NS_ASSUME_NONNULL_END
