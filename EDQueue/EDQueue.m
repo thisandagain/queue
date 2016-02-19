@@ -15,68 +15,31 @@ NSString *const EDQueueJobDidSucceed = @"EDQueueJobDidSucceed";
 NSString *const EDQueueJobDidFail = @"EDQueueJobDidFail";
 NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
-NSString *const EDQueueNameKey = @"name";
-NSString *const EDQueueDataKey = @"data";
-
-
-NSString *const EDQueueStorageJobIdKey = @"id";
-NSString *const EDQueueStorageJobTaskKey = @"task";
-NSString *const EDQueueStorageJobDataKey = @"data";
-NSString *const EDQueueStorageJobAttemptsKey = @"atempts";
-NSString *const EDQueueStorageJobStampKey = @"stamp";
+static NSString *const EDQueueNameKey = @"name";
+static NSString *const EDQueueDataKey = @"data";
 
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueue ()
-{
-    BOOL _isRunning;
-    BOOL _isActive;
-    NSUInteger _retryLimit;
-}
 
-@property (nonatomic) EDQueueStorageEngine *engine;
 @property (nonatomic, readwrite, nullable) NSString *activeTask;
 
 @end
 
-//
 
 @implementation EDQueue
 
-@synthesize isRunning = _isRunning;
-@synthesize isActive = _isActive;
-@synthesize retryLimit = _retryLimit;
-
-#pragma mark - Singleton
-
-+ (EDQueue *)sharedInstance
-{
-    static EDQueue *singleton = nil;
-    static dispatch_once_t once = 0;
-    dispatch_once(&once, ^{
-        singleton = [[self alloc] init];
-    });
-    return singleton;
-}
-
-#pragma mark - Init
-
-- (id)init
+- (instancetype)initWithPersistentStore:(id<EDQueuePersistentStorage>)persistentStore
 {
     self = [super init];
     if (self) {
-        _engine     = [[EDQueueStorageEngine alloc] init];
         _retryLimit = 4;
+        _storage = persistentStore;
     }
     return self;
 }
 
-- (void)dealloc
-{    
-    self.delegate = nil;
-    _engine = nil;
-}
 
 #pragma mark - Public methods
 
@@ -90,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)enqueueJob:(EDQueueJob *)job
 {
-    [self.engine createJob:job];
+    [self.storage createJob:job];
     [self tick];
 }
 
@@ -103,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)jobExistsForTask:(NSString *)task
 {
-    BOOL jobExists = [self.engine jobExistsForTask:task];
+    BOOL jobExists = [self.storage jobExistsForTask:task];
     return jobExists;
 }
 
@@ -129,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable EDQueueJob *)nextJobForTask:(NSString *)task
 {
-    EDQueueJob *nextJobForTask = [self.engine fetchJobForTask:task];
+    EDQueueJob *nextJobForTask = [self.storage fetchNextJobForTask:task];
     return nextJobForTask;
 }
 
@@ -146,7 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 
         NSDictionary *object = @{ EDQueueNameKey : EDQueueDidStart };
 
-//        [self performSelectorOnMainThread:@selector(postNotificationOnMainThread:) withObject:object waitUntilDone:NO];
         [self postNotificationOnMainThread:object];
     }
 }
@@ -163,8 +125,6 @@ NS_ASSUME_NONNULL_BEGIN
         _isRunning = NO;
 
         NSDictionary *object = @{ EDQueueNameKey : EDQueueDidStop };
-
-//        [self performSelectorOnMainThread:@selector(postNotification:) withObject:object waitUntilDone:NO];
         [self postNotificationOnMainThread:object];
     }
 }
@@ -179,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)empty
 {
-    [self.engine removeAllJobs];
+    [self.storage removeAllJobs];
 }
 
 
@@ -194,10 +154,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(gcd, ^{
-        if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
+        if (self.isRunning && !self.isActive && [self.storage jobCount] > 0) {
             // Start job
             _isActive = YES;
-            EDQueueJob *job = [self.engine fetchJob];
+            EDQueueJob *job = [self.storage fetchNextJob];
             self.activeTask = job.task;
             
             // Pass job to delegate
@@ -220,7 +180,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  EDQueueDataKey : job
                                                  }];
 
-            [self.engine removeJob:job];
+            [self.storage removeJob:job];
             break;
 
         case EDQueueResultFail:
@@ -233,9 +193,9 @@ NS_ASSUME_NONNULL_BEGIN
             NSUInteger currentAttempt = job.attempts.integerValue + 1;
 
             if (currentAttempt < self.retryLimit) {
-                [self.engine incrementAttemptForJob:job];
+                [self.storage incrementAttemptForJob:job];
             } else {
-                [self.engine removeJob:job];
+                [self.storage removeJob:job];
             }
             break;
         case EDQueueResultCritical:
@@ -246,7 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  }];
 
             [self errorWithMessage:@"Critical error. Job canceled."];
-            [self.engine removeJob:job];
+            [self.storage removeJob:job];
             break;
     }
     
@@ -254,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
     _isActive = NO;
     
     // Drain
-    if ([self.engine fetchJobCount] == 0) {
+    if ([self.storage jobCount] == 0) {
 
         [self postNotificationOnMainThread:@{
                                              EDQueueNameKey : EDQueueDidDrain,

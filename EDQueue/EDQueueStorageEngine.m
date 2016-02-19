@@ -17,6 +17,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *pathForStorageName(NSString *storage)
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *path = [documentsDirectory stringByAppendingPathComponent:storage];
+
+    return path;
+}
+
 @interface EDQueueStorageEngine()
 
 @property (retain) FMDatabaseQueue *queue;
@@ -25,22 +34,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation EDQueueStorageEngine
 
+#pragma mark - Class
+
++ (void)deleteDatabaseName:(NSString *)name
+{
+    [[NSFileManager defaultManager] removeItemAtPath:pathForStorageName(name) error:nil];
+}
+
 #pragma mark - Init
 
-- (id)init
+- (nullable instancetype)initWithName:(NSString *)name
 {
     self = [super init];
     if (self) {
-        // Database path
-        NSArray *paths                  = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES);
-        NSString *documentsDirectory    = [paths objectAtIndex:0];
-        NSString *path                  = [documentsDirectory stringByAppendingPathComponent:@"edqueue_0.5.0d.db"];
-        
-        // Allocate the queue
-        _queue                          = [[FMDatabaseQueue alloc] initWithPath:path];
+        _queue = [[FMDatabaseQueue alloc] initWithPath:pathForStorageName(name)];
 
-
-//        NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS queue (%@ INTEGER PRIMARY KEY, %@ TEXT NOT NULL, %@ TEXT NOT NULL, %@ INTEGER DEFAULT 0, %@ STRING DEFAULT (strftime('%%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)",EDQueueStorageJobIdKey, EDQueueStorageJobTaskKey, EDQueueStorageJobDataKey, EDQueueStorageJobAttemptsKey, EDQueueStorageJobStampKey];
+        if (!_queue) {
+            return nil;
+        }
 
         [self.queue inDatabase:^(FMDatabase *db) {
             [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
@@ -61,8 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates a new job within the datastore.
  *
- * @param {NSString} Data (JSON string)
- * @param {NSString} Task name
+ * @param {EDQueueJob} a Job
  *
  * @return {void}
  */
@@ -166,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return {uint}
  */
-- (NSUInteger)fetchJobCount
+- (NSUInteger)jobCount
 {
     __block NSUInteger count = 0;
     
@@ -189,7 +199,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return {NSDictionary}
  */
-- (nullable EDQueueJob *)fetchJob
+- (nullable EDQueueJob *)fetchNextJob
 {
     __block EDQueueJob *job;
     
@@ -214,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return {NSDictionary}
  */
-- (nullable EDQueueJob *)fetchJobForTask:(NSString *)task
+- (nullable EDQueueJob *)fetchNextJobForTask:(NSString *)task
 {
     __block EDQueueJob *job;
     
@@ -237,15 +247,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (EDQueueJob *)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
-
-
-//    NSDictionary *job = @{
-//        @"id": [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-//        @"task" :        [rs stringForColumn:@"task"],
-//        @"userInfo" :      slob,
-//        @"attempts" : [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-//        @"stamp":     [rs stringForColumn:@"stamp"]
-//    };
 
     EDQueueJob *job = [[EDQueueJob alloc] initWithTask:[rs stringForColumn:@"task"]
                                               userInfo:userInfo

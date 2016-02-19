@@ -8,17 +8,22 @@
 
 #import "EDAppDelegate.h"
 #import "EDViewController.h"
+#import "EDQueueStorageEngine.h"
 
 @implementation EDAppDelegate
 
-@synthesize window = _window;
-@synthesize viewController = _viewController;
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"database.sample.sqlite"];
+
+    self.persistentTaskQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
+
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     self.viewController = [[EDViewController alloc] initWithNibName:@"EDViewController" bundle:nil];
+
+    self.viewController.persistentTaskQueue = self.persistentTaskQueue;
+
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     return YES;
@@ -28,13 +33,13 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] setDelegate:self];
-    [[EDQueue sharedInstance] start];
+    [self.persistentTaskQueue setDelegate:self];
+    [self.persistentTaskQueue start];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] stop];
+    [self.persistentTaskQueue stop];
 }
 
 - (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block

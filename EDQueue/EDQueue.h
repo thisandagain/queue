@@ -6,9 +6,10 @@
 //  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 #import "EDQueueJob.h"
+#import "EDQueuePersistentStorageProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,21 +27,31 @@ extern NSString *const EDQueueJobDidSucceed;
 extern NSString *const EDQueueJobDidFail;
 extern NSString *const EDQueueDidDrain;
 
-extern NSString *const EDQueueNameKey;
-extern NSString *const EDQueueDataKey;
+@class EDQueue;
 
-
-@protocol EDQueueDelegate;
+@protocol EDQueueDelegate <NSObject>
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(EDQueueCompletionBlock)block;
+@end
 
 @interface EDQueue : NSObject
 
-+ (EDQueue *)sharedInstance;
-
 @property (nonatomic, weak) id<EDQueueDelegate> delegate;
+@property (nonatomic, strong, readonly) id<EDQueuePersistentStorage> storage;
 
+/**
+ * Returns true if Queue is running (e.g. not stopped).
+ */
 @property (nonatomic, readonly) BOOL isRunning;
+/**
+ * Returns true if Queue is performing Job right now
+ */
 @property (nonatomic, readonly) BOOL isActive;
+/**
+ * Retry limit for failing tasks (will be elimitated and moved to Job later)
+ */
 @property (nonatomic) NSUInteger retryLimit;
+
+- (instancetype)initWithPersistentStore:(id<EDQueuePersistentStorage>)persistentStore;
 
 - (void)enqueueJob:(EDQueueJob *)job;
 - (void)start;
@@ -53,8 +64,5 @@ extern NSString *const EDQueueDataKey;
 
 @end
 
-@protocol EDQueueDelegate <NSObject>
-- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(EDQueueCompletionBlock)block;
-@end
 
 NS_ASSUME_NONNULL_END

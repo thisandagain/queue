@@ -19,52 +19,65 @@ YourAppDelegate.h
 
 YourAppDelegate.m
 ```objective-c
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"database.sample.sqlite"];
+
+    self.persistentTaskQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
+
+    /* There you go ^^ */
+
+    return YES;
+}
+
+//
+
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] setDelegate:self];
-    [[EDQueue sharedInstance] start];
+    [self.persistentTaskQueue setDelegate:self];
+    [self.persistentTaskQueue start];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] stop];
+    [self.persistentTaskQueue stop];
 }
 
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block
 {
-    sleep(1);           // This won't block the main thread. Yay!
+    sleep(1);
     
-    // Wrap your job processing in a try-catch. Always use protection!
     @try {
-        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-            return EDQueueResultSuccess;
-        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-            return EDQueueResultFail;
+        if ([job.task isEqualToString:@"success"]) {
+            block(EDQueueResultSuccess);
+        } else if ([job.task isEqualToString:@"fail"]) {
+            block(EDQueueResultFail);
+        } else {
+            block(EDQueueResultCritical);
         }
     }
     @catch (NSException *exception) {
-        return EDQueueResultCritical;
+        block(EDQueueResultCritical);
     }
-    
-    return EDQueueResultCritical;
 }
 ```
 
 SomewhereElse.m
 ```objective-c
-[[EDQueue sharedInstance] enqueueWithData:@{ @"foo" : @"bar" } forTask:@"nyancat"];
+[self.queue enqueueWithData:@{ @"foo" : @"bar" } forTask:@"nyancat"];
 ```
 
-In order to keep things simple, the delegate method expects a return type of `EDQueueResult` which permits three distinct states:
+Explanation to type of `EDQueueResult` which permits three distinct states:
 - `EDQueueResultSuccess`: Used to indicate that a job has completed successfully
 - `EDQueueResultFail`: Used to indicate that a job has failed and should be retried (up to the specified `retryLimit`)
 - `EDQueueResultCritical`: Used to indicate that a job has failed critically and should not be attempted again
 
 ### Handling Async Jobs
-As of v0.6.0 queue includes a delegate method suited for handling asyncronous jobs such as HTTP requests or [Disk I/O](https://github.com/thisandagain/storage):
+As of v0.7.3 queue switched to delegate method suited for handling asyncronous jobs such as HTTP requests or [Disk I/O](https://github.com/thisandagain/storage):
+
 
 ```objective-c
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block
 {
     sleep(1);
     
@@ -88,14 +101,14 @@ As of v0.7.0 queue includes a collection of methods to aid in queue introspectio
 ```objective-c
 - (Boolean)jobExistsForTask:(NSString *)task;
 - (Boolean)jobIsActiveForTask:(NSString *)task;
-- (NSDictionary *)nextJobForTask:(NSString *)task;
+- (EDQueueJob *)nextJobForTask:(NSString *)task;
 ```
 
 ---
 
 ### Methods
 ```objective-c
-- (void)enqueueWithData:(id)data forTask:(NSString *)task;
+- (void)enqueueJob:(EDQueueJob *)job;
 
 - (void)start;
 - (void)stop;
@@ -103,13 +116,12 @@ As of v0.7.0 queue includes a collection of methods to aid in queue introspectio
 
 - (Boolean)jobExistsForTask:(NSString *)task;
 - (Boolean)jobIsActiveForTask:(NSString *)task;
-- (NSDictionary *)nextJobForTask:(NSString *)task;
+- (EDQueueJob *)nextJobForTask:(NSString *)task;
 ```
 
 ### Delegate Methods
 ```objective-c
-- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job;
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult result))block;
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult result))block;
 ```
 
 ### Result Types
@@ -139,7 +151,10 @@ EDQueueJobDidFail
 ---
 
 ### iOS Support
-EDQueue is designed for iOS 5 and up.
+EDQueue is designed for iOS 7 and up.
 
 ### ARC
 EDQueue is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
+
+### Nullability
+EDQueue is growing up to be used with Swift later. Therefore it's code is being modernized, and wrapped nicely with 'nullable' markers

@@ -8,20 +8,18 @@
 
 @import Foundation;
 
+#import "EDQueuePersistentStorageProtocol.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class EDQueueJob;
 
-@interface EDQueueStorageEngine : NSObject
+@interface EDQueueStorageEngine : NSObject<EDQueuePersistentStorage>
 
-- (void)createJob:(EDQueueJob *)job;
-- (BOOL)jobExistsForTask:(NSString *)task;
-- (void)incrementAttemptForJob:(EDQueueJob *)jid;
-- (void)removeJob:(EDQueueJob *)jid;
-- (void)removeAllJobs;
-- (NSUInteger)fetchJobCount;
-- (nullable EDQueueJob *)fetchJob;
-- (nullable EDQueueJob *)fetchJobForTask:(NSString *)task;
+- (nullable instancetype)initWithName:(NSString *)name;
+- (instancetype)init NS_UNAVAILABLE;
+
++ (void)deleteDatabaseName:(NSString *)name;
 
 @end
 
