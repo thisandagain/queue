@@ -37,6 +37,11 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 #pragma mark - Singleton
 
++ (NSString *)defaultPath
+{
+    return @"edqueue_0.5.0d.db";
+}
+
 + (EDQueue *)sharedInstance
 {
     static EDQueue *singleton = nil;
@@ -49,11 +54,17 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 #pragma mark - Init
 
-- (id)init
+- (id)init {
+    self = [self initWithPath:[self.class defaultPath]];
+    return self;
+}
+
+- (id)initWithPath:(NSString *)path
 {
+    NSAssert(path != nil, @"Path is required and may not be null");
     self = [super init];
     if (self) {
-        _engine     = [[EDQueueStorageEngine alloc] init];
+        _engine     = [[EDQueueStorageEngine alloc] initWithPath:path];
         _retryLimit = 4;
     }
     return self;

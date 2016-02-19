@@ -13,6 +13,7 @@
 
 @property (retain) FMDatabaseQueue *queue;
 
+- (id)initWithPath:(NSString *)inputPath;
 - (void)createJob:(id)data forTask:(id)task;
 - (BOOL)jobExistsForTask:(id)task;
 - (void)incrementAttemptForJob:(NSNumber *)jid;
