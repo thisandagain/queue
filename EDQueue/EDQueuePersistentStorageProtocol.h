@@ -12,18 +12,30 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class EDQueueJob;
 
+
+@protocol EDQueueStoredJob <NSObject>
+
+@property(nonatomic, readonly) EDQueueJob *job;
+
+@property(nonatomic, readonly, nullable) NSNumber *jobID;
+@property(nonatomic, readonly, nullable) NSNumber *attempts;
+@property(nonatomic, readonly, nullable) NSString *timeStamp;
+
+@end
+
+
 @protocol EDQueuePersistentStorage <NSObject>
 
 - (void)createJob:(EDQueueJob *)job;
 - (BOOL)jobExistsForTask:(NSString *)task;
-- (void)incrementAttemptForJob:(EDQueueJob *)jid;
+- (void)incrementAttemptForJob:(id<EDQueueStoredJob>)jid;
 
-- (void)removeJob:(EDQueueJob *)jid;
+- (void)removeJob:(id<EDQueueStoredJob>)jid;
 - (void)removeAllJobs;
 
 - (NSUInteger)jobCount;
-- (nullable EDQueueJob *)fetchNextJob;
-- (nullable EDQueueJob *)fetchNextJobForTask:(NSString *)task;
+- (nullable id<EDQueueStoredJob>)fetchNextJob;
+- (nullable id<EDQueueStoredJob>)fetchNextJobForTask:(NSString *)task;
 
 @end
 

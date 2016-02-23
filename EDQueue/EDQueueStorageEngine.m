@@ -26,6 +26,44 @@ static NSString *pathForStorageName(NSString *storage)
     return path;
 }
 
+@interface EDQueueStorageEngineJob : NSObject<EDQueueStoredJob>
+
+- (instancetype)initWithTask:(NSString *)task
+                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
+                       jobID:(nullable NSNumber *)jobID
+                     atempts:(nullable NSNumber *)attemps
+                   timeStamp:(nullable NSString *)timeStamp;
+
+@end
+
+@implementation EDQueueStorageEngineJob
+
+@synthesize job = _job;
+@synthesize jobID = _jobID;
+@synthesize attempts = _attempts;
+@synthesize timeStamp = _timeStamp;
+
+- (instancetype)initWithTask:(NSString *)task
+                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
+                       jobID:(nullable NSNumber *)jobID
+                     atempts:(nullable NSNumber *)attemps
+                   timeStamp:(nullable NSString *)timeStamp
+{
+    self = [super init];
+
+    if (self) {
+
+        _job = [[EDQueueJob alloc] initWithTask:task userInfo:userInfo];
+        _jobID = [jobID copy];
+        _attempts = [attemps copy];
+        _timeStamp = [timeStamp copy];
+    }
+
+    return self;
+}
+
+@end
+
 @interface EDQueueStorageEngine()
 
 @property (retain) FMDatabaseQueue *queue;
@@ -127,7 +165,7 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-- (void)incrementAttemptForJob:(EDQueueJob *)job
+- (void)incrementAttemptForJob:(id<EDQueueStoredJob>)job
 {
     if (!job.jobID) {
         return;
@@ -146,7 +184,7 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-- (void)removeJob:(EDQueueJob *)job
+- (void)removeJob:(id<EDQueueStoredJob>)job
 {
     if (!job.jobID) {
         return;
@@ -199,9 +237,9 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {NSDictionary}
  */
-- (nullable EDQueueJob *)fetchNextJob
+- (nullable id<EDQueueStoredJob>)fetchNextJob
 {
-    __block EDQueueJob *job;
+    __block id<EDQueueStoredJob> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
@@ -224,9 +262,9 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {NSDictionary}
  */
-- (nullable EDQueueJob *)fetchNextJobForTask:(NSString *)task
+- (nullable id<EDQueueStoredJob>)fetchNextJobForTask:(NSString *)task
 {
-    __block EDQueueJob *job;
+    __block id<EDQueueStoredJob> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
@@ -244,17 +282,15 @@ static NSString *pathForStorageName(NSString *storage)
 
 #pragma mark - Private methods
 
-- (EDQueueJob *)_jobFromResultSet:(FMResultSet *)rs
+- (id<EDQueueStoredJob>)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:[rs stringForColumn:@"task"]
-                                              userInfo:userInfo
-                                                 jobID:@([rs intForColumn:@"id"])
-                                               atempts:@([rs intForColumn:@"attempts"])
-                                             timeStamp:[rs stringForColumn:@"stamp"]];
-
-
+    EDQueueStorageEngineJob *job = [[EDQueueStorageEngineJob alloc] initWithTask:[rs stringForColumn:@"task"]
+                                                                        userInfo:userInfo
+                                                                           jobID:@([rs intForColumn:@"id"])
+                                                                         atempts:@([rs intForColumn:@"attempts"])
+                                                                       timeStamp:[rs stringForColumn:@"stamp"]];
 
     return job;
 }

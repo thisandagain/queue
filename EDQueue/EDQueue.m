@@ -1,4 +1,4 @@
-//
+ //
 //  EDQueue.m
 //  queue
 //
@@ -92,8 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable EDQueueJob *)nextJobForTask:(NSString *)task
 {
-    EDQueueJob *nextJobForTask = [self.storage fetchNextJobForTask:task];
-    return nextJobForTask;
+    id<EDQueueStoredJob> nextStoredJobForTask = [self.storage fetchNextJobForTask:task];
+    return nextStoredJobForTask.job;
 }
 
 /**
@@ -157,19 +157,19 @@ NS_ASSUME_NONNULL_BEGIN
         if (self.isRunning && !self.isActive && [self.storage jobCount] > 0) {
             // Start job
             _isActive = YES;
-            EDQueueJob *job = [self.storage fetchNextJob];
-            self.activeTask = job.task;
+            id<EDQueueStoredJob> storedJob = [self.storage fetchNextJob];
+            self.activeTask = storedJob.job.task;
             
             // Pass job to delegate
-                [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
-                    [self processJob:job withResult:result];
+                [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
+                    [self processJob:storedJob withResult:result];
                     self.activeTask = nil;
                 }];
         }
     });
 }
 
-- (void)processJob:(EDQueueJob*)job withResult:(EDQueueResult)result
+- (void)processJob:(id<EDQueueStoredJob>)storedJob withResult:(EDQueueResult)result
 {
     // Check result
     switch (result) {
@@ -177,36 +177,36 @@ NS_ASSUME_NONNULL_BEGIN
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidSucceed,
-                                                 EDQueueDataKey : job
+                                                 EDQueueDataKey : storedJob.job
                                                  }];
 
-            [self.storage removeJob:job];
+            [self.storage removeJob:storedJob];
             break;
 
         case EDQueueResultFail:
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidFail,
-                                                 EDQueueDataKey : job
+                                                 EDQueueDataKey : storedJob.job
                                                  }];
 
-            NSUInteger currentAttempt = job.attempts.integerValue + 1;
+            NSUInteger currentAttempt = storedJob.attempts.integerValue + 1;
 
             if (currentAttempt < self.retryLimit) {
-                [self.storage incrementAttemptForJob:job];
+                [self.storage incrementAttemptForJob:storedJob];
             } else {
-                [self.storage removeJob:job];
+                [self.storage removeJob:storedJob];
             }
             break;
         case EDQueueResultCritical:
 
             [self postNotificationOnMainThread:@{
                                                  EDQueueNameKey : EDQueueJobDidFail,
-                                                 EDQueueDataKey : job
+                                                 EDQueueDataKey : storedJob.job
                                                  }];
 
             [self errorWithMessage:@"Critical error. Job canceled."];
-            [self.storage removeJob:job];
+            [self.storage removeJob:storedJob];
             break;
     }
     

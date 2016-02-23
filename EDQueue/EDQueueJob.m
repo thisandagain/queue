@@ -14,27 +14,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTask:(NSString *)task
                     userInfo:(nullable NSDictionary *)userInfo
-                       jobID:(nullable NSNumber *)jobID
-                     atempts:(nullable NSNumber *)attemps
-                   timeStamp:(nullable NSString *)timeStamp
 {
-  self = [super init];
+    self = [super init];
 
-  if (self) {
-      _jobID = [jobID copy];
-      _task = [task copy];
-      _userInfo =  userInfo ? [userInfo copy] : @{};
-      _attempts = [attemps copy];
-      _timeStamp = [timeStamp copy];
-  }
+    if (self) {
+        _task = [task copy];
+        _userInfo =  userInfo ? [userInfo copy] : @{};
+    }
 
-  return self;
-}
-
-- (instancetype)initWithTask:(NSString *)task
-                    userInfo:(nullable NSDictionary *)userInfo
-{
-    return [self initWithTask:task userInfo:userInfo jobID:nil atempts:nil timeStamp:nil];
+    return self;
 }
 
 @end
