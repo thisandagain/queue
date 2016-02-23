@@ -58,9 +58,9 @@ extern NSString *const EDQueueDidDrain;
 - (void)stop;
 - (void)empty;
 
-- (BOOL)jobExistsForTask:(NSString *)task;
-- (BOOL)jobIsActiveForTask:(NSString *)task;
-- (nullable EDQueueJob *)nextJobForTask:(NSString *)task;
+- (BOOL)jobExistsForTag:(NSString *)tag;
+- (BOOL)jobIsActiveForTag:(NSString *)tag;
+- (nullable EDQueueJob *)nextJobForTag:(NSString *)tag;
 
 @end
 

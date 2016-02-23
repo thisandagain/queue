@@ -36,19 +36,19 @@
 
 - (IBAction)addSuccess:(id)sender
 {
-    EDQueueJob *success = [[EDQueueJob alloc] initWithTask:@"success" userInfo:@{ @"nyan" : @"cat" }];
+    EDQueueJob *success = [[EDQueueJob alloc] initWithTag:@"success" userInfo:@{ @"nyan" : @"cat" }];
     [self.persistentTaskQueue enqueueJob:success];
 }
 
 - (IBAction)addFail:(id)sender
 {
-    EDQueueJob *fail = [[EDQueueJob alloc] initWithTask:@"fail" userInfo:nil];
+    EDQueueJob *fail = [[EDQueueJob alloc] initWithTag:@"fail" userInfo:nil];
     [self.persistentTaskQueue enqueueJob:fail];
 }
 
 - (IBAction)addCritical:(id)sender
 {
-    EDQueueJob *critical = [[EDQueueJob alloc] initWithTask:@"critical" userInfo:nil];
+    EDQueueJob *critical = [[EDQueueJob alloc] initWithTag:@"critical" userInfo:nil];
     [self.persistentTaskQueue enqueueJob:critical];
 }
      

@@ -47,9 +47,9 @@
     sleep(1);
     
     @try {
-        if ([job.task isEqualToString:@"success"]) {
+        if ([job.tag isEqualToString:@"success"]) {
             block(EDQueueResultSuccess);
-        } else if ([job.task isEqualToString:@"fail"]) {
+        } else if ([job.tag isEqualToString:@"fail"]) {
             block(EDQueueResultFail);
         } else {
             block(EDQueueResultCritical);

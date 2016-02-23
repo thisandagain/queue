@@ -60,7 +60,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 
 - (void)testQueueStartThenAddJob
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
     self.queue.delegate = self;
 
@@ -75,7 +75,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 
 - (void)testQueueAddJobThenStart
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
     self.queue.delegate = self;
 
@@ -90,49 +90,49 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 
 - (void)testJobExistsForTaskAndEmpty
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
     [self.queue enqueueJob:job];
 
-    XCTAssertTrue([self.queue jobExistsForTask:@"testTask"]);
+    XCTAssertTrue([self.queue jobExistsForTag:@"testTask"]);
 
     [self.queue empty];
 
-    XCTAssertFalse([self.queue jobExistsForTask:@"testTask"]);
+    XCTAssertFalse([self.queue jobExistsForTag:@"testTask"]);
 }
 
 - (void)testJobDoesNotExistForTask
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
     [self.queue enqueueJob:job];
 
-    XCTAssertFalse([self.queue jobExistsForTask:@"testTaskFalse"]);
+    XCTAssertFalse([self.queue jobExistsForTag:@"testTaskFalse"]);
 }
 
 
 - (void)testJobIsActiveForTask
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
     [self.queue enqueueJob:job];
 
-    XCTAssertFalse([self.queue jobIsActiveForTask:@"testTask"]);
+    XCTAssertFalse([self.queue jobIsActiveForTag:@"testTask"]);
 
     [self.queue start];
 
     sleep(1);
 
-    XCTAssertTrue([self.queue jobIsActiveForTask:@"testTask"]);
+    XCTAssertTrue([self.queue jobIsActiveForTag:@"testTask"]);
 }
 
 -(void)testNextJobForTask
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTask" userInfo:@{@"testId":@"uniqueForThisTest"}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{@"testId":@"uniqueForThisTest"}];
 
     [self.queue enqueueJob:job];
 
-    EDQueueJob *nextJob = [self.queue nextJobForTask:@"testTask"];
+    EDQueueJob *nextJob = [self.queue nextJobForTag:@"testTask"];
 
     XCTAssertNotNil(nextJob);
 
@@ -141,7 +141,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 
 - (void)testIfQueuePersists
 {
-    EDQueueJob *job = [[EDQueueJob alloc] initWithTask:@"testTaskUniqueName" userInfo:@{@"test":@"test"}];
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTaskUniqueName" userInfo:@{@"test":@"test"}];
 
     [self.queue enqueueJob:job];
 
@@ -149,7 +149,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 
     [self setUp];
 
-    XCTAssertTrue([self.queue jobExistsForTask:@"testTaskUniqueName"]);
+    XCTAssertTrue([self.queue jobExistsForTag:@"testTaskUniqueName"]);
 }
 
 

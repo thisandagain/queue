@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol EDQueuePersistentStorage <NSObject>
 
 - (void)createJob:(EDQueueJob *)job;
-- (BOOL)jobExistsForTask:(NSString *)task;
+- (BOOL)jobExistsForTag:(NSString *)tag;
 - (void)incrementAttemptForJob:(id<EDQueueStorageItem>)jid;
 
 - (void)removeJob:(id<EDQueueStorageItem>)jid;
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)jobCount;
 - (nullable id<EDQueueStorageItem>)fetchNextJob;
-- (nullable id<EDQueueStorageItem>)fetchNextJobForTask:(NSString *)task;
+- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag;
 
 @end
 

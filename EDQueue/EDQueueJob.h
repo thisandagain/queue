@@ -13,11 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueueJob : NSObject
 
-@property(nonatomic, readonly) NSString *task;
+@property(nonatomic, readonly) NSString *tag;
 @property(nonatomic, readonly) NSDictionary<id<NSCoding>, id<NSCoding>> *userInfo;
 
-- (instancetype)initWithTask:(NSString *)task
-                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo;
+- (instancetype)initWithTag:(NSString *)tag
+                   userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
 

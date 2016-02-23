@@ -28,11 +28,11 @@ static NSString *pathForStorageName(NSString *storage)
 
 @interface EDQueueStorageEngineJob : NSObject<EDQueueStorageItem>
 
-- (instancetype)initWithTask:(NSString *)task
-                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
-                       jobID:(nullable NSNumber *)jobID
-                     atempts:(nullable NSNumber *)attemps
-                   timeStamp:(nullable NSString *)timeStamp;
+- (instancetype)initWithTag:(NSString *)tag
+                   userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
+                      jobID:(nullable NSNumber *)jobID
+                    atempts:(nullable NSNumber *)attemps
+                  timeStamp:(nullable NSString *)timeStamp;
 
 @end
 
@@ -43,17 +43,17 @@ static NSString *pathForStorageName(NSString *storage)
 @synthesize attempts = _attempts;
 @synthesize timeStamp = _timeStamp;
 
-- (instancetype)initWithTask:(NSString *)task
-                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
-                       jobID:(nullable NSNumber *)jobID
-                     atempts:(nullable NSNumber *)attemps
-                   timeStamp:(nullable NSString *)timeStamp
+- (instancetype)initWithTag:(NSString *)tag
+                   userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
+                      jobID:(nullable NSNumber *)jobID
+                    atempts:(nullable NSNumber *)attemps
+                  timeStamp:(nullable NSString *)timeStamp
 {
     self = [super init];
 
     if (self) {
 
-        _job = [[EDQueueJob alloc] initWithTask:task userInfo:userInfo];
+        _job = [[EDQueueJob alloc] initWithTag:tag userInfo:userInfo];
         _jobID = [jobID copy];
         _attempts = [attemps copy];
         _timeStamp = [timeStamp copy];
@@ -92,7 +92,7 @@ static NSString *pathForStorageName(NSString *storage)
         }
 
         [self.queue inDatabase:^(FMDatabase *db) {
-            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, task TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
+            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, tag TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
             [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
     }
@@ -128,7 +128,7 @@ static NSString *pathForStorageName(NSString *storage)
     }
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"INSERT INTO queue (task, data) VALUES (?, ?)", job.task, dataString];
+        [db executeUpdate:@"INSERT INTO queue (tag, data) VALUES (?, ?)", job.tag, dataString];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -140,12 +140,12 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {BOOL}
  */
-- (BOOL)jobExistsForTask:(NSString *)task
+- (BOOL)jobExistsForTag:(NSString *)tag
 {
     __block BOOL jobExists = NO;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE tag = ?", tag];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -262,12 +262,12 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {NSDictionary}
  */
-- (nullable id<EDQueueStorageItem>)fetchNextJobForTask:(NSString *)task
+- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag
 {
     __block id<EDQueueStorageItem> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE tag = ? ORDER BY id ASC LIMIT 1", tag];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -286,11 +286,11 @@ static NSString *pathForStorageName(NSString *storage)
 {
     NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 
-    EDQueueStorageEngineJob *job = [[EDQueueStorageEngineJob alloc] initWithTask:[rs stringForColumn:@"task"]
-                                                                        userInfo:userInfo
-                                                                           jobID:@([rs intForColumn:@"id"])
-                                                                         atempts:@([rs intForColumn:@"attempts"])
-                                                                       timeStamp:[rs stringForColumn:@"stamp"]];
+    EDQueueStorageEngineJob *job = [[EDQueueStorageEngineJob alloc] initWithTag:[rs stringForColumn:@"tag"]
+                                                                       userInfo:userInfo
+                                                                          jobID:@([rs intForColumn:@"id"])
+                                                                        atempts:@([rs intForColumn:@"attempts"])
+                                                                      timeStamp:[rs stringForColumn:@"stamp"]];
 
     return job;
 }

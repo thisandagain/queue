@@ -12,13 +12,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation EDQueueJob
 
-- (instancetype)initWithTask:(NSString *)task
-                    userInfo:(nullable NSDictionary *)userInfo
+- (instancetype)initWithTag:(NSString *)tag
+                   userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
 {
     self = [super init];
 
     if (self) {
-        _task = [task copy];
+        _tag = [tag copy];
         _userInfo =  userInfo ? [userInfo copy] : @{};
     }
 
