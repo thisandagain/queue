@@ -26,7 +26,7 @@ static NSString *pathForStorageName(NSString *storage)
     return path;
 }
 
-@interface EDQueueStorageEngineJob : NSObject<EDQueueStoredJob>
+@interface EDQueueStorageEngineJob : NSObject<EDQueueStorageItem>
 
 - (instancetype)initWithTask:(NSString *)task
                     userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
@@ -165,7 +165,7 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-- (void)incrementAttemptForJob:(id<EDQueueStoredJob>)job
+- (void)incrementAttemptForJob:(id<EDQueueStorageItem>)job
 {
     if (!job.jobID) {
         return;
@@ -184,7 +184,7 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-- (void)removeJob:(id<EDQueueStoredJob>)job
+- (void)removeJob:(id<EDQueueStorageItem>)job
 {
     if (!job.jobID) {
         return;
@@ -237,9 +237,9 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {NSDictionary}
  */
-- (nullable id<EDQueueStoredJob>)fetchNextJob
+- (nullable id<EDQueueStorageItem>)fetchNextJob
 {
-    __block id<EDQueueStoredJob> job;
+    __block id<EDQueueStorageItem> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
@@ -262,9 +262,9 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {NSDictionary}
  */
-- (nullable id<EDQueueStoredJob>)fetchNextJobForTask:(NSString *)task
+- (nullable id<EDQueueStorageItem>)fetchNextJobForTask:(NSString *)task
 {
-    __block id<EDQueueStoredJob> job;
+    __block id<EDQueueStorageItem> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
         FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
@@ -282,7 +282,7 @@ static NSString *pathForStorageName(NSString *storage)
 
 #pragma mark - Private methods
 
-- (id<EDQueueStoredJob>)_jobFromResultSet:(FMResultSet *)rs
+- (id<EDQueueStorageItem>)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 

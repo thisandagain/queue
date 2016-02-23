@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable EDQueueJob *)nextJobForTask:(NSString *)task
 {
-    id<EDQueueStoredJob> nextStoredJobForTask = [self.storage fetchNextJobForTask:task];
+    id<EDQueueStorageItem> nextStoredJobForTask = [self.storage fetchNextJobForTask:task];
     return nextStoredJobForTask.job;
 }
 
@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (self.isRunning && !self.isActive && [self.storage jobCount] > 0) {
             // Start job
             _isActive = YES;
-            id<EDQueueStoredJob> storedJob = [self.storage fetchNextJob];
+            id<EDQueueStorageItem> storedJob = [self.storage fetchNextJob];
             self.activeTask = storedJob.job.task;
             
             // Pass job to delegate
@@ -169,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-- (void)processJob:(id<EDQueueStoredJob>)storedJob withResult:(EDQueueResult)result
+- (void)processJob:(id<EDQueueStorageItem>)storedJob withResult:(EDQueueResult)result
 {
     // Check result
     switch (result) {
