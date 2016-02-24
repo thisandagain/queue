@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly, nullable) NSNumber *jobID;
 @property(nonatomic, readonly, nullable) NSNumber *attempts;
-@property(nonatomic, readonly, nullable) NSString *timeStamp;
 
 @end
 
@@ -28,14 +27,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)createJob:(EDQueueJob *)job;
 - (BOOL)jobExistsForTag:(NSString *)tag;
-- (void)incrementAttemptForJob:(id<EDQueueStorageItem>)jid;
+- (void)scheduleNextAttemptForJob:(id<EDQueueStorageItem>)jid;
 
 - (void)removeJob:(id<EDQueueStorageItem>)jid;
 - (void)removeAllJobs;
 
 - (NSUInteger)jobCount;
-- (nullable id<EDQueueStorageItem>)fetchNextJob;
-- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag;
+- (nullable id<EDQueueStorageItem>)fetchNextJobValidForDate:(NSDate *)date;
+- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag validForDate:(NSDate *)date;
 
 @end
 

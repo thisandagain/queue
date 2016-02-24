@@ -48,7 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        _retryLimit = 4;
         _storage = persistentStore;
     }
     return self;
@@ -105,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable EDQueueJob *)nextJobForTag:(NSString *)tag
 {
-    id<EDQueueStorageItem> item = [self.storage fetchNextJobForTag:tag];
+    id<EDQueueStorageItem> item = [self.storage fetchNextJobForTag:tag validForDate:[NSDate date]];
     return item.job;
 }
 
@@ -168,16 +167,25 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(gcd, ^{
         if (self.isRunning && !self.isActive && [self.storage jobCount] > 0) {
-            // Start job
-            _isActive = YES;
-            id<EDQueueStorageItem> storedJob = [self.storage fetchNextJob];
+
+            id<EDQueueStorageItem> storedJob = [self.storage fetchNextJobValidForDate:[NSDate date]];
+
+            if (!storedJob) {
+                __weak typeof(self) weakSelf = self;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakSelf performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
+                });
+
+                return;
+            }
+
+            // Start job & Pass job to delegate
             self.activeJobTag = storedJob.job.tag;
-            
-            // Pass job to delegate
-                [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
-                    [self processJob:storedJob withResult:result];
-                    self.activeJobTag = nil;
-                }];
+            _isActive = YES;
+            [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
+                [self processJob:storedJob withResult:result];
+                self.activeJobTag = nil;
+            }];
         }
     });
 }
@@ -203,10 +211,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                  EDQueueDataKey : storedJob.job
                                                  }];
 
-            NSUInteger currentAttempt = storedJob.attempts.integerValue + 1;
+            BOOL shouldRetry = NO;
 
-            if (currentAttempt < self.retryLimit) {
-                [self.storage incrementAttemptForJob:storedJob];
+            if (storedJob.job.maxRetryCount == EDQueueJobInfiniteRetryCount) {
+                shouldRetry = YES;
+            } else if(storedJob.job.maxRetryCount > storedJob.attempts.integerValue) {
+                shouldRetry = YES;
+            }
+
+            if (shouldRetry) {
+                [self.storage scheduleNextAttemptForJob:storedJob];
             } else {
                 [self.storage removeJob:storedJob];
             }

@@ -31,8 +31,7 @@ static NSString *pathForStorageName(NSString *storage)
 - (instancetype)initWithTag:(NSString *)tag
                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
                       jobID:(nullable NSNumber *)jobID
-                    atempts:(nullable NSNumber *)attemps
-                  timeStamp:(nullable NSString *)timeStamp;
+                    atempts:(nullable NSNumber *)attemps;
 
 @end
 
@@ -41,13 +40,11 @@ static NSString *pathForStorageName(NSString *storage)
 @synthesize job = _job;
 @synthesize jobID = _jobID;
 @synthesize attempts = _attempts;
-@synthesize timeStamp = _timeStamp;
 
 - (instancetype)initWithTag:(NSString *)tag
                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
                       jobID:(nullable NSNumber *)jobID
                     atempts:(nullable NSNumber *)attemps
-                  timeStamp:(nullable NSString *)timeStamp
 {
     self = [super init];
 
@@ -56,7 +53,6 @@ static NSString *pathForStorageName(NSString *storage)
         _job = [[EDQueueJob alloc] initWithTag:tag userInfo:userInfo];
         _jobID = [jobID copy];
         _attempts = [attemps copy];
-        _timeStamp = [timeStamp copy];
     }
 
     return self;
@@ -92,7 +88,7 @@ static NSString *pathForStorageName(NSString *storage)
         }
 
         [self.queue inDatabase:^(FMDatabase *db) {
-            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, tag TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, stamp STRING DEFAULT (strftime('%s','now')) NOT NULL, udef_1 TEXT, udef_2 TEXT)"];
+            [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, tag TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, maxAttempts INTEGER DEFAULT 0, expiration DOUBLE DEFAULT 0, retryTimeInterval DOUBLE DEFAULT 30, lastAttempt DOUBLE DEFAULT 0 )"];
             [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
     }
@@ -116,18 +112,26 @@ static NSString *pathForStorageName(NSString *storage)
  */
 - (void)createJob:(EDQueueJob *)job
 {
-    NSString *dataString = nil;
+    if (!job.userInfo) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"EDQueueJob.userInfo can not be nil" userInfo:nil];
+    }
 
-    if (job.userInfo) {
-        NSData *data = [NSJSONSerialization dataWithJSONObject:job.userInfo
+    NSData *data = [NSJSONSerialization dataWithJSONObject:job.userInfo
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:nil];
 
-        dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    
+    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"INSERT INTO queue (tag, data) VALUES (?, ?)", job.tag, dataString];
+
+        NSTimeInterval expiration = job.expirationDate.timeIntervalSince1970;
+
+        if (expiration == 0) {
+            expiration = [NSDate distantFuture].timeIntervalSince1970;
+        }
+
+        [db executeUpdate:@"INSERT INTO queue (tag, data, maxAttempts, expiration, retryTimeInterval) VALUES (?, ?, ?, ?, ?)", job.tag, dataString, @(job.maxRetryCount), @(expiration), @(job.retryTimeInterval)];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -164,14 +168,14 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-- (void)incrementAttemptForJob:(id<EDQueueStorageItem>)job
+- (void)scheduleNextAttemptForJob:(id<EDQueueStorageItem>)job
 {
     if (!job.jobID) {
         return;
     }
 
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"UPDATE queue SET attempts = attempts + 1 WHERE id = ?", job.jobID];
+        [db executeUpdate:@"UPDATE queue SET attempts = attempts + 1, lastAttempt = ? WHERE id = ?", @([NSDate date].timeIntervalSince1970 + job.job.retryTimeInterval), job.jobID];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -218,7 +222,7 @@ static NSString *pathForStorageName(NSString *storage)
     __block NSUInteger count = 0;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue"];
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE expiration >= ? ",@([NSDate date].timeIntervalSince1970)];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -234,14 +238,15 @@ static NSString *pathForStorageName(NSString *storage)
 /**
  * Returns the oldest job from the datastore.
  *
- * @return {NSDictionary}
+ * @return {id<EDQueueStorageItem>}
  */
-- (nullable id<EDQueueStorageItem>)fetchNextJob
+- (nullable id<EDQueueStorageItem>)fetchNextJobValidForDate:(NSDate *)date
 {
     __block id<EDQueueStorageItem> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
+        NSTimeInterval timestamp = date.timeIntervalSince1970;
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE lastAttempt <= ? AND expiration >= ? ORDER BY id ASC LIMIT 1", @(timestamp), @(timestamp)];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -259,14 +264,14 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @param {id} tag
  *
- * @return {NSDictionary}
+ * @return {id<EDQueueStorageItem>}
  */
-- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag
+- (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag validForDate:(NSDate *)date
 {
     __block id<EDQueueStorageItem> job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE tag = ? ORDER BY id ASC LIMIT 1", tag];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE tag = ? AND lastAttempt <= ? AND expiration >= ? ORDER BY id ASC LIMIT 1", tag, @(date.timeIntervalSince1970), @(date.timeIntervalSince1970)];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -285,13 +290,20 @@ static NSString *pathForStorageName(NSString *storage)
 {
     NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
 
-    EDQueueStorageEngineJob *job = [[EDQueueStorageEngineJob alloc] initWithTag:[rs stringForColumn:@"tag"]
+    EDQueueStorageEngineJob *storedItem = [[EDQueueStorageEngineJob alloc] initWithTag:[rs stringForColumn:@"tag"]
                                                                        userInfo:userInfo
                                                                           jobID:@([rs intForColumn:@"id"])
-                                                                        atempts:@([rs intForColumn:@"attempts"])
-                                                                      timeStamp:[rs stringForColumn:@"stamp"]];
+                                                                        atempts:@([rs intForColumn:@"attempts"])];
 
-    return job;
+    storedItem.job.maxRetryCount = [rs unsignedLongLongIntForColumn:@"maxAttempts"];
+    storedItem.job.retryTimeInterval = [rs doubleForColumn:@"retryTimeInterval"];
+
+    NSTimeInterval expiration = [rs doubleForColumn:@"expiration"];
+
+    storedItem.job.expirationDate = [NSDate dateWithTimeIntervalSince1970:expiration];
+
+
+    return storedItem;
 }
 
 - (BOOL)_databaseHadError:(BOOL)flag fromDatabase:(FMDatabase *)db

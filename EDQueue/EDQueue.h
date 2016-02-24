@@ -46,10 +46,6 @@ extern NSString *const EDQueueDidDrain;
  * Returns true if Queue is performing Job right now
  */
 @property (nonatomic, readonly) BOOL isActive;
-/**
- * Retry limit for failing jobs (will be elimitated and moved to Job later)
- */
-@property (nonatomic) NSUInteger retryLimit;
 
 + (instancetype)defaultQueue;
 

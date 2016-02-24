@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         _tag = [tag copy];
         _userInfo =  userInfo ? [userInfo copy] : @{};
+        _maxRetryCount = EDQueueJobInfiniteRetryCount;
+        _retryTimeInterval = EDQueueJobDefaultRetryTimeInterval;
+        _expirationDate = [NSDate distantFuture];
     }
 
     return self;
