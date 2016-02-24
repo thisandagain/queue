@@ -520,6 +520,7 @@
 				7CA53B041C77495200420814 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C395D502159E56760041510C /* Build configuration list for PBXProject "queue" */ = {
 			isa = XCConfigurationList;

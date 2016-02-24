@@ -114,7 +114,6 @@ static NSString *pathForStorageName(NSString *storage)
  *
  * @return {void}
  */
-//- (void)createJob:(id)data forTask:(id)task
 - (void)createJob:(EDQueueJob *)job
 {
     NSString *dataString = nil;
@@ -134,9 +133,9 @@ static NSString *pathForStorageName(NSString *storage)
 }
 
 /**
- * Tells if a job exists for the specified task name.
+ * Tells if a job exists for the specified tag
  *
- * @param {NSString} Task name
+ * @param {NSString} tag
  *
  * @return {BOOL}
  */
@@ -256,9 +255,9 @@ static NSString *pathForStorageName(NSString *storage)
 }
 
 /**
- * Returns the oldest job for the task from the datastore.
+ * Returns the oldest job for the with tag from the datastore.
  *
- * @param {id} Task label
+ * @param {id} tag
  *
  * @return {NSDictionary}
  */

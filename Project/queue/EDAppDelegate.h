@@ -16,6 +16,5 @@
 
 @property (nonatomic) UIWindow *window;
 @property (nonatomic) EDViewController *viewController;
-@property (nonatomic) EDQueue *persistentTaskQueue;
 
 @end

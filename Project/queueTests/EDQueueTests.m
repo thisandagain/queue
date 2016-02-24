@@ -88,7 +88,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
-- (void)testJobExistsForTaskAndEmpty
+- (void)testJobExistsForTagAndEmpty
 {
     EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
@@ -101,7 +101,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
     XCTAssertFalse([self.queue jobExistsForTag:@"testTask"]);
 }
 
-- (void)testJobDoesNotExistForTask
+- (void)testJobDoesNotExistForTag
 {
     EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
@@ -111,7 +111,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
 }
 
 
-- (void)testJobIsActiveForTask
+- (void)testJobIsActiveForTag
 {
     EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{}];
 
@@ -126,7 +126,7 @@ NSString *const EQTestDatabaseName = @"database.test.sqlite";
     XCTAssertTrue([self.queue jobIsActiveForTag:@"testTask"]);
 }
 
--(void)testNextJobForTask
+-(void)testNextJobForTag
 {
     EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"testTask" userInfo:@{@"testId":@"uniqueForThisTest"}];
 

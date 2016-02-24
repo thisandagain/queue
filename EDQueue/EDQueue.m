@@ -23,12 +23,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueue ()
 
-@property (nonatomic, readwrite, nullable) NSString *activeTaskTag;
+@property (nonatomic, readwrite, nullable) NSString *activeJobTag;
 
 @end
 
 
 @implementation EDQueue
+
++ (instancetype)defaultQueue
+{
+    static EDQueue *defaultQueue;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"edqueue.default.v7.3.sqlite"];
+
+        defaultQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
+    });
+
+    return defaultQueue;
+}
 
 - (instancetype)initWithPersistentStore:(id<EDQueuePersistentStorage>)persistentStore
 {
@@ -46,8 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Adds a new job to the queue.
  *
- * @param {id} Data
- * @param {NSString} Task label
+ * @param {EDQueueJob} job
  *
  * @return {void}
  */
@@ -58,9 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Returns true if a job exists for this task.
+ * Returns true if a job exists for this tag.
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {Boolean}
  */
@@ -71,29 +84,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Returns true if the active job if for this task.
+ * Returns true if the active job if for this tag.
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {Boolean}
  */
 - (BOOL)jobIsActiveForTag:(NSString *)tag
 {
-    BOOL jobIsActive = [self.activeTaskTag length] > 0 && [self.activeTaskTag isEqualToString:tag];
+    BOOL jobIsActive = [self.activeJobTag length] > 0 && [self.activeJobTag isEqualToString:tag];
     return jobIsActive;
 }
 
 /**
- * Returns the list of jobs for this 
+ * Returns the next job for tag
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {NSArray}
  */
 - (nullable EDQueueJob *)nextJobForTag:(NSString *)tag
 {
-    id<EDQueueStorageItem> nextStoredJobForTask = [self.storage fetchNextJobForTag:tag];
-    return nextStoredJobForTask.job;
+    id<EDQueueStorageItem> item = [self.storage fetchNextJobForTag:tag];
+    return item.job;
 }
 
 /**
@@ -158,12 +171,12 @@ NS_ASSUME_NONNULL_BEGIN
             // Start job
             _isActive = YES;
             id<EDQueueStorageItem> storedJob = [self.storage fetchNextJob];
-            self.activeTaskTag = storedJob.job.tag;
+            self.activeJobTag = storedJob.job.tag;
             
             // Pass job to delegate
                 [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
                     [self processJob:storedJob withResult:result];
-                    self.activeTaskTag = nil;
+                    self.activeJobTag = nil;
                 }];
         }
     });

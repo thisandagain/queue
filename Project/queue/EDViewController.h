@@ -11,8 +11,6 @@
 
 @interface EDViewController : UIViewController
 
-@property (nonatomic) EDQueue *persistentTaskQueue;
-
 @property (nonatomic) IBOutlet UITextView *activity;
 
 - (IBAction)addSuccess:(id)sender;

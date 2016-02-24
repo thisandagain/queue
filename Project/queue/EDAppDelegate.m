@@ -14,16 +14,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"database.sample.sqlite"];
-
-    self.persistentTaskQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
-
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
     self.viewController = [[EDViewController alloc] initWithNibName:@"EDViewController" bundle:nil];
-
-    self.viewController.persistentTaskQueue = self.persistentTaskQueue;
-
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     return YES;
@@ -33,13 +26,13 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [self.persistentTaskQueue setDelegate:self];
-    [self.persistentTaskQueue start];
+    [[EDQueue defaultQueue] setDelegate:self];
+    [[EDQueue defaultQueue] start];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [self.persistentTaskQueue stop];
+    [[EDQueue defaultQueue] stop];
 }
 
 - (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block

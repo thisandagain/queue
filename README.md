@@ -7,7 +7,22 @@ While `NSOperation` and `NSOperationQueue` work well for some repetitive problem
 The easiest way to get going with EDQueue is to take a look at the included example application. The XCode project file can be found in `Project > queue.xcodeproj`.
 
 ### Setup
-EDQueue needs both `libsqlite3.0.dylib` and [FMDB](https://github.com/ccgus/fmdb) for the storage engine. As always, the quickest way to take care of all those details is to use [CocoaPods](http://cocoapods.org/). EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all processed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate:
+EDQueue needs both `libsqlite3.0.dylib` and [FMDB](https://github.com/ccgus/fmdb) for the storage engine. As always, the quickest way to take care of all those details is to use [CocoaPods](http://cocoapods.org/). EDQueue is implemented as a singleton as to allow jobs to be created from anywhere throughout an application. However, tasks are all processed through a single delegate method and thus it often makes the most sense to setup EDQueue within the application delegate. See examples below.
+
+#### No-sigleton approach
+
+EDQueue is easy to use with your DI or other way around singletons. You also able to use non-FMDB storage for persistence. To do so have a look at `EDQueuePersistentStorageProtocol`. It's pretty straighforward.
+
+Here's exaple of configuring EDQueue with your storage:
+
+```
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"mydatabase.sqlite"];
+
+    self.persistentTaskQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
+}
+```
 
 YourAppDelegate.h
 ```objective-c
@@ -19,28 +34,15 @@ YourAppDelegate.h
 
 YourAppDelegate.m
 ```objective-c
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-    EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"database.sample.sqlite"];
-
-    self.persistentTaskQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
-
-    /* There you go ^^ */
-
-    return YES;
-}
-
-//
-
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [self.persistentTaskQueue setDelegate:self];
-    [self.persistentTaskQueue start];
+    [[EDQueue defaultQueue] setDelegate:self];
+    [[EDQueue defaultQueue] start];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [self.persistentTaskQueue stop];
+    [[EDQueue defaultQueue] stop];
 }
 
 - (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block
@@ -48,9 +50,9 @@ YourAppDelegate.m
     sleep(1);
     
     @try {
-        if ([job.task isEqualToString:@"success"]) {
+        if ([job.tag isEqualToString:@"success"]) {
             block(EDQueueResultSuccess);
-        } else if ([job.task isEqualToString:@"fail"]) {
+        } else if ([job.tag isEqualToString:@"fail"]) {
             block(EDQueueResultFail);
         } else {
             block(EDQueueResultCritical);
@@ -64,16 +66,17 @@ YourAppDelegate.m
 
 SomewhereElse.m
 ```objective-c
-[self.queue enqueueWithData:@{ @"foo" : @"bar" } forTask:@"nyancat"];
+EDQueueJob *success = [[EDQueueJob alloc] initWithTag:@"success" userInfo:@{ @"nyan" : @"cat" }];
+[[EDQueue defaultQueue] enqueueJob:success];
 ```
 
-Explanation to type of `EDQueueResult` which permits three distinct states:
+In order to keep things simple, the delegate method expects a call of a callback with one parameter type of `EDQueueResult` which permits three distinct states:
 - `EDQueueResultSuccess`: Used to indicate that a job has completed successfully
 - `EDQueueResultFail`: Used to indicate that a job has failed and should be retried (up to the specified `retryLimit`)
 - `EDQueueResultCritical`: Used to indicate that a job has failed critically and should not be attempted again
 
 ### Handling Async Jobs
-As of v0.7.3 queue switched to delegate method suited for handling asyncronous jobs such as HTTP requests or [Disk I/O](https://github.com/thisandagain/storage):
+As of v1.0 queue switched to a delegate method suited for handling asyncronous jobs such as HTTP requests or [Disk I/O](https://github.com/thisandagain/storage):
 
 
 ```objective-c
@@ -97,11 +100,11 @@ As of v0.7.3 queue switched to delegate method suited for handling asyncronous j
 ```
 
 ### Introspection
-As of v0.7.0 queue includes a collection of methods to aid in queue introspection specific to each task:
+As of v0.7.0 queue includes a collection of methods to aid in queue introspection specific to each task, using tags:
 ```objective-c
-- (Boolean)jobExistsForTask:(NSString *)task;
-- (Boolean)jobIsActiveForTask:(NSString *)task;
-- (EDQueueJob *)nextJobForTask:(NSString *)task;
+- (Boolean)jobExistsForTag:(NSString *)tag;
+- (Boolean)jobIsActiveForTag:(NSString *)tag;
+- (EDQueueJob *)nextJobForTag:(NSString *)tag;
 ```
 
 ---
@@ -114,9 +117,9 @@ As of v0.7.0 queue includes a collection of methods to aid in queue introspectio
 - (void)stop;
 - (void)empty;
 
-- (Boolean)jobExistsForTask:(NSString *)task;
-- (Boolean)jobIsActiveForTask:(NSString *)task;
-- (EDQueueJob *)nextJobForTask:(NSString *)task;
+- (Boolean)jobExistsForTag:(NSString *)tag;
+- (Boolean)jobIsActiveForTag:(NSString *)tag;
+- (EDQueueJob *)nextJobForTag:(NSString *)tag;
 ```
 
 ### Delegate Methods
@@ -155,6 +158,3 @@ EDQueue is designed for iOS 7 and up.
 
 ### ARC
 EDQueue is built using ARC. If you are including EDQueue in a project that **does not** use [Automatic Reference Counting (ARC)](http://developer.apple.com/library/ios/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html), you will need to set the `-fobjc-arc` compiler flag on all of the EDQueue source files. To do this in Xcode, go to your active target and select the "Build Phases" tab. Now select all EDQueue source files, press Enter, insert `-fobjc-arc` and then "Done" to enable ARC for EDQueue.
-
-### Nullability
-EDQueue is growing up to be used with Swift later. Therefore it's code is being modernized, and wrapped nicely with 'nullable' markers
