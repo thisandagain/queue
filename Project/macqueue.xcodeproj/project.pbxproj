@@ -1,0 +1,373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		86887ABF1B0E19A900BB35FD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887ABE1B0E19A900BB35FD /* AppDelegate.m */; };
+		86887AC11B0E19A900BB35FD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AC01B0E19A900BB35FD /* main.m */; };
+		86887AC41B0E19A900BB35FD /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AC31B0E19A900BB35FD /* ViewController.m */; };
+		86887AC61B0E19A900BB35FD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86887AC51B0E19A900BB35FD /* Images.xcassets */; };
+		86887AC91B0E19A900BB35FD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86887AC71B0E19A900BB35FD /* Main.storyboard */; };
+		86887AE31B0E1EF200BB35FD /* EDQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AE01B0E1EF200BB35FD /* EDQueue.m */; };
+		86887AE41B0E1EF200BB35FD /* EDQueueStorageEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AE21B0E1EF200BB35FD /* EDQueueStorageEngine.m */; };
+		86887AF11B0E205A00BB35FD /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AE81B0E205A00BB35FD /* FMDatabase.m */; };
+		86887AF21B0E205A00BB35FD /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AEA1B0E205A00BB35FD /* FMDatabaseAdditions.m */; };
+		86887AF31B0E205A00BB35FD /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AEC1B0E205A00BB35FD /* FMDatabasePool.m */; };
+		86887AF41B0E205A00BB35FD /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AEE1B0E205A00BB35FD /* FMDatabaseQueue.m */; };
+		86887AF51B0E205A00BB35FD /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 86887AF01B0E205A00BB35FD /* FMResultSet.m */; };
+		86887AF71B0E208600BB35FD /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 86887AF61B0E208600BB35FD /* libsqlite3.0.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		86887AB81B0E19A900BB35FD /* macqueue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macqueue.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		86887ABC1B0E19A900BB35FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		86887ABD1B0E19A900BB35FD /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		86887ABE1B0E19A900BB35FD /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		86887AC01B0E19A900BB35FD /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		86887AC21B0E19A900BB35FD /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		86887AC31B0E19A900BB35FD /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		86887AC51B0E19A900BB35FD /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		86887AC81B0E19A900BB35FD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		86887ADF1B0E1EF200BB35FD /* EDQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDQueue.h; sourceTree = "<group>"; };
+		86887AE01B0E1EF200BB35FD /* EDQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDQueue.m; sourceTree = "<group>"; };
+		86887AE11B0E1EF200BB35FD /* EDQueueStorageEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDQueueStorageEngine.h; sourceTree = "<group>"; };
+		86887AE21B0E1EF200BB35FD /* EDQueueStorageEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDQueueStorageEngine.m; sourceTree = "<group>"; };
+		86887AE71B0E205A00BB35FD /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		86887AE81B0E205A00BB35FD /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
+		86887AE91B0E205A00BB35FD /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		86887AEA1B0E205A00BB35FD /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		86887AEB1B0E205A00BB35FD /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		86887AEC1B0E205A00BB35FD /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		86887AED1B0E205A00BB35FD /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		86887AEE1B0E205A00BB35FD /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		86887AEF1B0E205A00BB35FD /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		86887AF01B0E205A00BB35FD /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		86887AF61B0E208600BB35FD /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.0.dylib; path = usr/lib/libsqlite3.0.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		86887AB51B0E19A900BB35FD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86887AF71B0E208600BB35FD /* libsqlite3.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		86887AAF1B0E19A900BB35FD = {
+			isa = PBXGroup;
+			children = (
+				86887ADE1B0E1EF200BB35FD /* EDQueue */,
+				86887AE51B0E203F00BB35FD /* Lib */,
+				86887ABA1B0E19A900BB35FD /* Example */,
+				86887AF81B0E209300BB35FD /* Frameworks */,
+				86887AB91B0E19A900BB35FD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		86887AB91B0E19A900BB35FD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				86887AB81B0E19A900BB35FD /* macqueue.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		86887ABA1B0E19A900BB35FD /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				86887ABD1B0E19A900BB35FD /* AppDelegate.h */,
+				86887ABE1B0E19A900BB35FD /* AppDelegate.m */,
+				86887AC21B0E19A900BB35FD /* ViewController.h */,
+				86887AC31B0E19A900BB35FD /* ViewController.m */,
+				86887AC51B0E19A900BB35FD /* Images.xcassets */,
+				86887AC71B0E19A900BB35FD /* Main.storyboard */,
+				86887ABB1B0E19A900BB35FD /* Supporting Files */,
+			);
+			name = Example;
+			path = macqueue;
+			sourceTree = "<group>";
+		};
+		86887ABB1B0E19A900BB35FD /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				86887ABC1B0E19A900BB35FD /* Info.plist */,
+				86887AC01B0E19A900BB35FD /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		86887ADE1B0E1EF200BB35FD /* EDQueue */ = {
+			isa = PBXGroup;
+			children = (
+				86887ADF1B0E1EF200BB35FD /* EDQueue.h */,
+				86887AE01B0E1EF200BB35FD /* EDQueue.m */,
+				86887AE11B0E1EF200BB35FD /* EDQueueStorageEngine.h */,
+				86887AE21B0E1EF200BB35FD /* EDQueueStorageEngine.m */,
+			);
+			name = EDQueue;
+			path = ../EDQueue;
+			sourceTree = "<group>";
+		};
+		86887AE51B0E203F00BB35FD /* Lib */ = {
+			isa = PBXGroup;
+			children = (
+				86887AE61B0E205A00BB35FD /* Fmdb */,
+			);
+			name = Lib;
+			sourceTree = "<group>";
+		};
+		86887AE61B0E205A00BB35FD /* Fmdb */ = {
+			isa = PBXGroup;
+			children = (
+				86887AE71B0E205A00BB35FD /* FMDatabase.h */,
+				86887AE81B0E205A00BB35FD /* FMDatabase.m */,
+				86887AE91B0E205A00BB35FD /* FMDatabaseAdditions.h */,
+				86887AEA1B0E205A00BB35FD /* FMDatabaseAdditions.m */,
+				86887AEB1B0E205A00BB35FD /* FMDatabasePool.h */,
+				86887AEC1B0E205A00BB35FD /* FMDatabasePool.m */,
+				86887AED1B0E205A00BB35FD /* FMDatabaseQueue.h */,
+				86887AEE1B0E205A00BB35FD /* FMDatabaseQueue.m */,
+				86887AEF1B0E205A00BB35FD /* FMResultSet.h */,
+				86887AF01B0E205A00BB35FD /* FMResultSet.m */,
+			);
+			path = Fmdb;
+			sourceTree = "<group>";
+		};
+		86887AF81B0E209300BB35FD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				86887AF61B0E208600BB35FD /* libsqlite3.0.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		86887AB71B0E19A900BB35FD /* macqueue */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 86887AD81B0E19A900BB35FD /* Build configuration list for PBXNativeTarget "macqueue" */;
+			buildPhases = (
+				86887AB41B0E19A900BB35FD /* Sources */,
+				86887AB51B0E19A900BB35FD /* Frameworks */,
+				86887AB61B0E19A900BB35FD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = macqueue;
+			productName = macqueue;
+			productReference = 86887AB81B0E19A900BB35FD /* macqueue.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		86887AB01B0E19A900BB35FD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+				ORGANIZATIONNAME = "Aaron Taylor";
+				TargetAttributes = {
+					86887AB71B0E19A900BB35FD = {
+						CreatedOnToolsVersion = 6.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 86887AB31B0E19A900BB35FD /* Build configuration list for PBXProject "macqueue" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 86887AAF1B0E19A900BB35FD;
+			productRefGroup = 86887AB91B0E19A900BB35FD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				86887AB71B0E19A900BB35FD /* macqueue */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		86887AB61B0E19A900BB35FD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86887AC61B0E19A900BB35FD /* Images.xcassets in Resources */,
+				86887AC91B0E19A900BB35FD /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		86887AB41B0E19A900BB35FD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86887AC41B0E19A900BB35FD /* ViewController.m in Sources */,
+				86887AE41B0E1EF200BB35FD /* EDQueueStorageEngine.m in Sources */,
+				86887AC11B0E19A900BB35FD /* main.m in Sources */,
+				86887AF11B0E205A00BB35FD /* FMDatabase.m in Sources */,
+				86887AF51B0E205A00BB35FD /* FMResultSet.m in Sources */,
+				86887AE31B0E1EF200BB35FD /* EDQueue.m in Sources */,
+				86887AF31B0E205A00BB35FD /* FMDatabasePool.m in Sources */,
+				86887AF21B0E205A00BB35FD /* FMDatabaseAdditions.m in Sources */,
+				86887ABF1B0E19A900BB35FD /* AppDelegate.m in Sources */,
+				86887AF41B0E205A00BB35FD /* FMDatabaseQueue.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		86887AC71B0E19A900BB35FD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				86887AC81B0E19A900BB35FD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		86887AD61B0E19A900BB35FD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		86887AD71B0E19A900BB35FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		86887AD91B0E19A900BB35FD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = macqueue/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		86887ADA1B0E19A900BB35FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = macqueue/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		86887AB31B0E19A900BB35FD /* Build configuration list for PBXProject "macqueue" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86887AD61B0E19A900BB35FD /* Debug */,
+				86887AD71B0E19A900BB35FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		86887AD81B0E19A900BB35FD /* Build configuration list for PBXNativeTarget "macqueue" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86887AD91B0E19A900BB35FD /* Debug */,
+				86887ADA1B0E19A900BB35FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 86887AB01B0E19A900BB35FD /* Project object */;
+}

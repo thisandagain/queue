@@ -122,6 +122,28 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 /**
+ * Returns the number of jobs for task
+ *
+ * @param {NSString} Task label
+ *
+ * @return {NSUinteger}
+ */
+- (NSUInteger)jobCountForTask:(NSString *)task
+{
+    return [self.engine jobCountForTask:task];
+}
+
+/**
+ * Returns the total number of jobs
+ *
+ * @return {NSUinteger}
+ */
+- (NSUInteger)totalJobCount
+{
+    return [self.engine fetchJobCount];
+}
+
+/**
  * Starts the queue.
  *
  * @return {void}
