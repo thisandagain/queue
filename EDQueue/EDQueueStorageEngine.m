@@ -87,7 +87,7 @@ static NSString *pathForStorageName(NSString *storage)
             return nil;
         }
 
-        [self.queue inDatabase:^(FMDatabase *db) {
+        [_queue inDatabase:^(FMDatabase *db) {
             [db executeUpdate:@"CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY, tag TEXT NOT NULL, data TEXT NOT NULL, attempts INTEGER DEFAULT 0, maxAttempts INTEGER DEFAULT 0, expiration DOUBLE DEFAULT 0, retryTimeInterval DOUBLE DEFAULT 30, lastAttempt DOUBLE DEFAULT 0 )"];
             [self _databaseHadError:[db hadError] fromDatabase:db];
         }];
@@ -181,7 +181,8 @@ static NSString *pathForStorageName(NSString *storage)
 }
 
 /**
- * Removes a job from the datastore using a specified id.
+ * Removes a job from the datastore using a specified id. And also removes all Expired jobs. 
+ * (aka clean-up)
  *
  * @param {NSNumber} Job id
  *
@@ -194,7 +195,8 @@ static NSString *pathForStorageName(NSString *storage)
     }
 
     [self.queue inDatabase:^(FMDatabase *db) {
-        [db executeUpdate:@"DELETE FROM queue WHERE id = ?", job.jobID];
+        NSNumber *expiration = @([NSDate date].timeIntervalSince1970);
+        [db executeUpdate:@"DELETE FROM queue WHERE id = ? OR expiration < ?", job.jobID, expiration];
         [self _databaseHadError:[db hadError] fromDatabase:db];
     }];
 }
@@ -205,7 +207,8 @@ static NSString *pathForStorageName(NSString *storage)
  * @return {void}
  *
  */
-- (void)removeAllJobs {
+- (void)removeAllJobs
+{
     [self.queue inDatabase:^(FMDatabase *db) {
         [db executeUpdate:@"DELETE FROM queue"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
