@@ -126,4 +126,21 @@
     XCTAssertEqual(itemIncreased.attempts.integerValue, 1);
 }
 
+- (void)testFetchNextJobTimeInterval
+{
+    EDQueueStorageEngine *testEngine = [[EDQueueStorageEngine alloc] initWithName:@"test.db"];
+
+    EDQueueJob *job = [[EDQueueJob alloc] initWithTag:@"tag" userInfo:@{@"user":@"info"}];
+
+    [testEngine createJob:job];
+
+    id<EDQueueStorageItem> item = [testEngine fetchNextJobValidForDate:[NSDate date]];
+
+    [testEngine scheduleNextAttemptForJob:item];
+
+    NSTimeInterval nextTimeInterval = [testEngine fetchNextJobTimeInterval];
+
+    XCTAssertEqualWithAccuracy(nextTimeInterval, job.retryTimeInterval, 2);
+}
+
 @end

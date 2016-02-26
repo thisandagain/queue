@@ -15,6 +15,10 @@
 
 #import "EDQueueJob.h"
 
+static NSTimeInterval const DefaultJobSleepInteval = 5.0;
+static NSTimeInterval const MaxJobSleepInterval = 60.0;
+
+
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *pathForStorageName(NSString *storage)
@@ -56,6 +60,11 @@ static NSString *pathForStorageName(NSString *storage)
     }
 
     return self;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@ : id:%@, tag: %@",NSStringFromClass([self class]), _jobID, _job.tag];
 }
 
 @end
@@ -239,7 +248,7 @@ static NSString *pathForStorageName(NSString *storage)
 }
 
 /**
- * Returns the oldest job from the datastore.
+ * Returns the oldest valid job from the datastore.
  *
  * @return {id<EDQueueStorageItem>}
  */
@@ -263,28 +272,60 @@ static NSString *pathForStorageName(NSString *storage)
 }
 
 /**
- * Returns the oldest job for the with tag from the datastore.
- *
- * @param {id} tag
+ * Returns the oldest valid job from the datastore with specific tag
  *
  * @return {id<EDQueueStorageItem>}
  */
 - (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag validForDate:(NSDate *)date
 {
     __block id<EDQueueStorageItem> job;
-    
+
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE tag = ? AND lastAttempt <= ? AND expiration >= ? ORDER BY id ASC LIMIT 1", tag, @(date.timeIntervalSince1970), @(date.timeIntervalSince1970)];
+        NSTimeInterval timestamp = date.timeIntervalSince1970;
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE tag = ? AND lastAttempt <= ? AND expiration >= ? ORDER BY id ASC LIMIT 1", tag, @(timestamp), @(timestamp)];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+
+        while ([rs next]) {
+            job = [self _jobFromResultSet:rs];
+        }
+
+        [rs close];
+    }];
+
+    return job;
+}
+
+/**
+ * Returns the minumum timeout for starting the next job.
+ *
+ * @param {id} tag
+ *
+ * @return {id<EDQueueStorageItem>}
+ */
+- (NSTimeInterval)fetchNextJobTimeInterval
+{
+
+    __block NSTimeInterval timeInterval = DefaultJobSleepInteval;
+
+    [self.queue inDatabase:^(FMDatabase *db) {
+
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE lastAttempt < expiration ORDER BY lastAttempt ASC LIMIT 1"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
-            job = [self _jobFromResultSet:rs];
+            timeInterval = [rs doubleForColumn:@"lastAttempt"];
+
+            timeInterval = fabs(timeInterval - [NSDate date].timeIntervalSince1970);
+
+            if (timeInterval > MaxJobSleepInterval) {
+                timeInterval = MaxJobSleepInterval;
+            }
         }
         
         [rs close];
     }];
     
-    return job;
+    return timeInterval;
 }
 
 #pragma mark - Private methods
@@ -298,7 +339,7 @@ static NSString *pathForStorageName(NSString *storage)
                                                                           jobID:@([rs intForColumn:@"id"])
                                                                         atempts:@([rs intForColumn:@"attempts"])];
 
-    storedItem.job.maxRetryCount = [rs unsignedLongLongIntForColumn:@"maxAttempts"];
+    storedItem.job.maxRetryCount = [rs intForColumn:@"maxAttempts"];
     storedItem.job.retryTimeInterval = [rs doubleForColumn:@"retryTimeInterval"];
 
     NSTimeInterval expiration = [rs doubleForColumn:@"expiration"];

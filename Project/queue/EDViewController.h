@@ -11,10 +11,12 @@
 
 @interface EDViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UILabel *activityTitle;
 @property (nonatomic) IBOutlet UITextView *activity;
 
 - (IBAction)addSuccess:(id)sender;
 - (IBAction)addFail:(id)sender;
 - (IBAction)addCritical:(id)sender;
+- (IBAction)clearQueue:(id)sender;
 
 @end

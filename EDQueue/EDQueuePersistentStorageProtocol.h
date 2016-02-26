@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)jobCount;
 - (nullable id<EDQueueStorageItem>)fetchNextJobValidForDate:(NSDate *)date;
 - (nullable id<EDQueueStorageItem>)fetchNextJobForTag:(NSString *)tag validForDate:(NSDate *)date;
+- (NSTimeInterval)fetchNextJobTimeInterval;
 
 @end
 

@@ -56,6 +56,8 @@ extern NSString *const EDQueueDidDrain;
 - (void)stop;
 - (void)empty;
 
+- (NSInteger)jobCount;
+
 - (BOOL)jobExistsForTag:(NSString *)tag;
 - (BOOL)jobIsActiveForTag:(NSString *)tag;
 - (nullable EDQueueJob *)nextJobForTag:(NSString *)tag;

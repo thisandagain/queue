@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
-        EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"edqueue.default.v7.3.sqlite"];
+        EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"edqueue.default.v1.0.sqlite"];
 
         defaultQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
     });
@@ -55,6 +55,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 #pragma mark - Public methods
+
+/**
+ * Total number of enqueued & valid jobs.
+ *
+ * @return {NSInteger}
+ */
+- (NSInteger)jobCount
+{
+    return [self.storage jobCount];
+}
 
 /**
  * Adds a new job to the queue.
@@ -152,6 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)empty
 {
     [self.storage removeAllJobs];
+
+    [self postNotificationOnMainThread:@{ EDQueueNameKey : EDQueueDidDrain }];
 }
 
 
@@ -164,15 +176,31 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)tick
 {
-    dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(gcd, ^{
-        if (self.isRunning && !self.isActive && [self.storage jobCount] > 0) {
+    static dispatch_once_t onceToken;
+    static dispatch_queue_t gcd;
+
+    dispatch_once(&onceToken, ^{
+        gcd = dispatch_queue_create("edqueue.serial", DISPATCH_QUEUE_SERIAL);
+    });
+
+    dispatch_barrier_async(gcd, ^{
+
+        if (!self.isRunning) {
+            return;
+        }
+
+        if (self.isActive) {
+            return;
+        }
+
+        if ([self.storage jobCount] > 0) {
 
             id<EDQueueStorageItem> storedJob = [self.storage fetchNextJobValidForDate:[NSDate date]];
 
             if (!storedJob) {
                 __weak typeof(self) weakSelf = self;
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSTimeInterval nextTime = [self.storage fetchNextJobTimeInterval];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                     [weakSelf performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
                 });
 
@@ -182,6 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
             // Start job & Pass job to delegate
             self.activeJobTag = storedJob.job.tag;
             _isActive = YES;
+
             [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
                 [self processJob:storedJob withResult:result];
                 self.activeJobTag = nil;
@@ -202,6 +231,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  }];
 
             [self.storage removeJob:storedJob];
+
             break;
 
         case EDQueueResultFail:
@@ -224,6 +254,7 @@ NS_ASSUME_NONNULL_BEGIN
             } else {
                 [self.storage removeJob:storedJob];
             }
+
             break;
         case EDQueueResultCritical:
 
@@ -234,12 +265,13 @@ NS_ASSUME_NONNULL_BEGIN
 
             [self errorWithMessage:@"Critical error. Job canceled."];
             [self.storage removeJob:storedJob];
+
             break;
     }
     
     // Clean-up
     _isActive = NO;
-    
+
     // Drain
     if ([self.storage jobCount] == 0) {
 
