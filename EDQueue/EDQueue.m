@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EDQueue ()
 
-@property (nonatomic, readwrite, nullable) NSString *activeJobTag;
+@property (nonatomic, nullable) NSString *activeJobTag;
+@property (nonatomic) dispatch_queue_t dispatchQueue;
 
 @end
 
@@ -49,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
     self = [super init];
     if (self) {
         _storage = persistentStore;
+        self.dispatchQueue = dispatch_queue_create("edqueue.serial", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -176,14 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)tick
 {
-    static dispatch_once_t onceToken;
-    static dispatch_queue_t gcd;
-
-    dispatch_once(&onceToken, ^{
-        gcd = dispatch_queue_create("edqueue.serial", DISPATCH_QUEUE_SERIAL);
-    });
-
-    dispatch_barrier_async(gcd, ^{
+    dispatch_barrier_async(self.dispatchQueue, ^{
 
         if (!self.isRunning) {
             return;
