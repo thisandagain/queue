@@ -35,7 +35,7 @@ static NSString *pathForStorageName(NSString *storage)
 - (instancetype)initWithTag:(NSString *)tag
                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
                       jobID:(nullable NSNumber *)jobID
-                    atempts:(nullable NSNumber *)attemps;
+                    atempts:(NSNumber *)attemps;
 
 @end
 
@@ -48,7 +48,7 @@ static NSString *pathForStorageName(NSString *storage)
 - (instancetype)initWithTag:(NSString *)tag
                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo
                       jobID:(nullable NSNumber *)jobID
-                    atempts:(nullable NSNumber *)attemps
+                    atempts:(NSNumber *)attemps
 {
     self = [super init];
 

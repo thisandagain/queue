@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) EDQueueJob *job;
 
 @property(nonatomic, readonly, nullable) NSNumber *jobID;
-@property(nonatomic, readonly, nullable) NSNumber *attempts;
+@property(nonatomic, readonly) NSNumber *attempts;
 
 @end
 

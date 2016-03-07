@@ -26,6 +26,7 @@ static NSTimeInterval const EDQueueJobDefaultRetryTimeInterval = 15.0;
                    userInfo:(nullable NSDictionary<id<NSCoding>, id<NSCoding>> *)userInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
