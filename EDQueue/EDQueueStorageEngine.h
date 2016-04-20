@@ -21,5 +21,6 @@
 - (NSUInteger)fetchJobCount;
 - (NSDictionary *)fetchJob;
 - (NSDictionary *)fetchJobForTask:(id)task;
+- (NSArray *)getAllJobs;
 
 @end

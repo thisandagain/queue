@@ -201,6 +201,21 @@
     return job;
 }
 
+- (NSArray *)getAllJobs
+{
+  __block id jobs = [[NSMutableArray alloc] init];
+  [self.queue inDatabase:^(FMDatabase *db) {
+    FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC"];
+    [self _databaseHadError:[db hadError] fromDatabase:db];
+    while ([rs next]) {
+      NSDictionary *job = [self _jobFromResultSet:rs];
+      if (job) [jobs addObject:job];
+    }
+    [rs close];
+  }];
+  return jobs;
+}
+
 #pragma mark - Private methods
 
 - (NSDictionary *)_jobFromResultSet:(FMResultSet *)rs
