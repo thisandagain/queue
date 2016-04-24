@@ -163,7 +163,7 @@
     __block id job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY attempts DESC, id ASC LIMIT 1"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
