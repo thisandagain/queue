@@ -41,6 +41,7 @@ extern NSString *const EDQueueDidDrain;
 - (BOOL)jobExistsForTask:(NSString *)task;
 - (BOOL)jobIsActiveForTask:(NSString *)task;
 - (NSDictionary *)nextJobForTask:(NSString *)task;
+- (NSArray *) getAllJobs;
 
 @end
 

@@ -163,7 +163,7 @@
     __block id job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY attempts ASC, id ASC LIMIT 1"];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -199,6 +199,21 @@
     }];
     
     return job;
+}
+
+- (NSArray *)getAllJobs
+{
+  __block id jobs = [[NSMutableArray alloc] init];
+  [self.queue inDatabase:^(FMDatabase *db) {
+    FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC"];
+    [self _databaseHadError:[db hadError] fromDatabase:db];
+    while ([rs next]) {
+      NSDictionary *job = [self _jobFromResultSet:rs];
+      if (job) [jobs addObject:job];
+    }
+    [rs close];
+  }];
+  return jobs;
 }
 
 #pragma mark - Private methods

@@ -121,6 +121,10 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     return nextJobForTask;
 }
 
+- (NSArray *) getAllJobs{
+  return [self.engine getAllJobs];
+}
+
 /**
  * Starts the queue.
  *
