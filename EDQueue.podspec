@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name         = 'EDQueue'
-  s.version      = '1.0'
+  s.version      = '1.1'
   s.license      = 'MIT'
   s.summary      = 'A persistent background job queue for iOS.'
   s.homepage     = 'https://github.com/gelosi/queue'
   s.authors      = {'Andrew Sliwinski' => 'andrewsliwinski@acm.org', 'Francois Lambert' => 'flambert@mirego.com', 'Oleg Shanyuk' => 'oleg.shanyuk@gmail.com'}
-  s.source       = { :git => 'https://github.com/gelosi/queue.git', :tag => 'v1.0' }
+  s.source       = { :git => 'https://github.com/gelosi/queue.git', :tag => 'v1.1' }
   s.platform     = :ios, '7.0'
   s.source_files = 'EDQueue'
   s.library      = 'sqlite3.0'

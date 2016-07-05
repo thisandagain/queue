@@ -125,11 +125,9 @@ static NSString *pathForStorageName(NSString *storage)
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"EDQueueJob.userInfo can not be nil" userInfo:nil];
     }
 
-    NSData *data = [NSJSONSerialization dataWithJSONObject:job.userInfo
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:nil];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:job.userInfo];
 
-    NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSString *dataString = [data base64EncodedStringWithOptions:0];
 
 
     [self.queue inDatabase:^(FMDatabase *db) {
@@ -332,7 +330,18 @@ static NSString *pathForStorageName(NSString *storage)
 
 - (id<EDQueueStorageItem>)_jobFromResultSet:(FMResultSet *)rs
 {
-    NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+    NSString *encodedString = [rs stringForColumn:@"data"];
+    NSDictionary *userInfo;
+    @try {
+        NSData *data = [[NSData alloc] initWithBase64EncodedString:encodedString options:0];
+        if (encodedString && !data) {
+            @throw [NSException exceptionWithName:NSInvalidArchiveOperationException reason:nil userInfo:nil];
+        }
+        userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    } @catch (NSException *exception) {
+        /* respect previous JSON serialization [though, good idea to move serializer out of storage] */
+        userInfo = [NSJSONSerialization JSONObjectWithData:[encodedString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+    }
 
     EDQueueStorageEngineJob *storedItem = [[EDQueueStorageEngineJob alloc] initWithTag:[rs stringForColumn:@"tag"]
                                                                        userInfo:userInfo
