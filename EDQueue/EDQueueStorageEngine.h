@@ -6,20 +6,21 @@
 //  Copyright (c) 2012 DIY, Co. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
-@class FMDatabaseQueue;
-@interface EDQueueStorageEngine : NSObject
+#import "EDQueuePersistentStorageProtocol.h"
 
-@property (retain) FMDatabaseQueue *queue;
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)createJob:(id)data forTask:(id)task;
-- (BOOL)jobExistsForTask:(id)task;
-- (void)incrementAttemptForJob:(NSNumber *)jid;
-- (void)removeJob:(NSNumber *)jid;
-- (void)removeAllJobs;
-- (NSUInteger)fetchJobCount;
-- (NSDictionary *)fetchJob;
-- (NSDictionary *)fetchJobForTask:(id)task;
+@class EDQueueJob;
+
+@interface EDQueueStorageEngine : NSObject<EDQueuePersistentStorage>
+
+- (nullable instancetype)initWithName:(NSString *)name;
+- (instancetype)init NS_UNAVAILABLE;
+
++ (void)deleteDatabaseName:(NSString *)name;
 
 @end
+
+NS_ASSUME_NONNULL_END

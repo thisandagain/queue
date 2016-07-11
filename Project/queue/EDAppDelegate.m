@@ -8,11 +8,9 @@
 
 #import "EDAppDelegate.h"
 #import "EDViewController.h"
+#import "EDQueueStorageEngine.h"
 
 @implementation EDAppDelegate
-
-@synthesize window = _window;
-@synthesize viewController = _viewController;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -28,23 +26,23 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] setDelegate:self];
-    [[EDQueue sharedInstance] start];
+    [[EDQueue defaultQueue] setDelegate:self];
+    [[EDQueue defaultQueue] start];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [[EDQueue sharedInstance] stop];
+    [[EDQueue defaultQueue] stop];
 }
 
-- (void)queue:(EDQueue *)queue processJob:(NSDictionary *)job completion:(void (^)(EDQueueResult))block
+- (void)queue:(EDQueue *)queue processJob:(EDQueueJob *)job completion:(void (^)(EDQueueResult))block
 {
     sleep(1);
     
     @try {
-        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
+        if ([job.tag isEqualToString:@"success"]) {
             block(EDQueueResultSuccess);
-        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
+        } else if ([job.tag isEqualToString:@"fail"]) {
             block(EDQueueResultFail);
         } else {
             block(EDQueueResultCritical);
@@ -54,27 +52,6 @@
         block(EDQueueResultCritical);
     }
 }
-
-//- (EDQueueResult)queue:(EDQueue *)queue processJob:(NSDictionary *)job
-//{
-//    sleep(1);
-//    
-//    @try {
-//        if ([[job objectForKey:@"task"] isEqualToString:@"success"]) {
-//            return EDQueueResultSuccess;
-//        } else if ([[job objectForKey:@"task"] isEqualToString:@"fail"]) {
-//            return EDQueueResultFail;
-//        }
-//    }
-//    @catch (NSException *exception) {
-//        return EDQueueResultCritical;
-//    }
-//    
-//    return EDQueueResultCritical;
-//}
-
-//
-
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 

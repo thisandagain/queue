@@ -6,14 +6,15 @@
 //  Copyright (c) 2012 Andrew Sliwinski. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+@import UIKit;
+
 #import "EDQueue.h"
 
 @class EDViewController;
 
 @interface EDAppDelegate : UIResponder <UIApplicationDelegate, EDQueueDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) EDViewController *viewController;
+@property (nonatomic) UIWindow *window;
+@property (nonatomic) EDViewController *viewController;
 
 @end

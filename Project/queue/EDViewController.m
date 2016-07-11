@@ -36,17 +36,26 @@
 
 - (IBAction)addSuccess:(id)sender
 {
-    [[EDQueue sharedInstance] enqueueWithData:@{ @"nyan" : @"cat" } forTask:@"success"];
+    EDQueueJob *success = [[EDQueueJob alloc] initWithTag:@"success" userInfo:@{ @"nyan" : @"cat" }];
+    [[EDQueue defaultQueue] enqueueJob:success];
 }
 
 - (IBAction)addFail:(id)sender
 {
-    [[EDQueue sharedInstance] enqueueWithData:nil forTask:@"fail"];
+    EDQueueJob *fail = [[EDQueueJob alloc] initWithTag:@"fail" userInfo:nil];
+    fail.maxRetryCount = 10;
+    [[EDQueue defaultQueue] enqueueJob:fail];
 }
 
 - (IBAction)addCritical:(id)sender
 {
-    [[EDQueue sharedInstance] enqueueWithData:nil forTask:@"critical"];
+    EDQueueJob *critical = [[EDQueueJob alloc] initWithTag:@"critical" userInfo:nil];
+    [[EDQueue defaultQueue] enqueueJob:critical];
+}
+
+- (IBAction)clearQueue:(id)sender
+{
+    [[EDQueue defaultQueue] empty];
 }
      
 #pragma mark - Notifications
@@ -55,6 +64,8 @@
 {
     self.activity.text = [NSString stringWithFormat:@"%@%@\n", self.activity.text, notification];
     [self.activity scrollRangeToVisible:NSMakeRange([self.activity.text length], 0)];
+
+    self.activityTitle.text = [NSString stringWithFormat:@"Activity: %ld",(long)[[EDQueue defaultQueue] jobCount]];
 }
 
 #pragma mark - Dealloc

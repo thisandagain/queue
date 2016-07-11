@@ -15,110 +15,109 @@ NSString *const EDQueueJobDidSucceed = @"EDQueueJobDidSucceed";
 NSString *const EDQueueJobDidFail = @"EDQueueJobDidFail";
 NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
-@interface EDQueue ()
-{
-    BOOL _isRunning;
-    BOOL _isActive;
-    NSUInteger _retryLimit;
-}
+static NSString *const EDQueueNameKey = @"name";
+static NSString *const EDQueueDataKey = @"data";
 
-@property (nonatomic) EDQueueStorageEngine *engine;
-@property (nonatomic, readwrite) NSString *activeTask;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EDQueue ()
+
+@property (nonatomic, nullable) NSString *activeJobTag;
+@property (nonatomic) dispatch_queue_t dispatchQueue;
 
 @end
 
-//
 
 @implementation EDQueue
 
-@synthesize isRunning = _isRunning;
-@synthesize isActive = _isActive;
-@synthesize retryLimit = _retryLimit;
-
-#pragma mark - Singleton
-
-+ (EDQueue *)sharedInstance
++ (instancetype)defaultQueue
 {
-    static EDQueue *singleton = nil;
-    static dispatch_once_t once = 0;
-    dispatch_once(&once, ^{
-        singleton = [[self alloc] init];
+    static EDQueue *defaultQueue;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        EDQueueStorageEngine *fmdbBasedStorage = [[EDQueueStorageEngine alloc] initWithName:@"edqueue.default.v1.0.sqlite"];
+
+        defaultQueue = [[EDQueue alloc] initWithPersistentStore:fmdbBasedStorage];
     });
-    return singleton;
+
+    return defaultQueue;
 }
 
-#pragma mark - Init
-
-- (id)init
+- (instancetype)initWithPersistentStore:(id<EDQueuePersistentStorage>)persistentStore
 {
     self = [super init];
     if (self) {
-        _engine     = [[EDQueueStorageEngine alloc] init];
-        _retryLimit = 4;
+        _storage = persistentStore;
+        self.dispatchQueue = dispatch_queue_create("edqueue.serial", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
 
-- (void)dealloc
-{    
-    self.delegate = nil;
-    _engine = nil;
-}
 
 #pragma mark - Public methods
 
 /**
+ * Total number of enqueued & valid jobs.
+ *
+ * @return {NSInteger}
+ */
+- (NSInteger)jobCount
+{
+    return [self.storage jobCount];
+}
+
+/**
  * Adds a new job to the queue.
  *
- * @param {id} Data
- * @param {NSString} Task label
+ * @param {EDQueueJob} job
  *
  * @return {void}
  */
-- (void)enqueueWithData:(id)data forTask:(NSString *)task
+- (void)enqueueJob:(EDQueueJob *)job
 {
-    if (data == nil) data = @{};
-    [self.engine createJob:data forTask:task];
+    [self.storage createJob:job];
     [self tick];
 }
 
 /**
- * Returns true if a job exists for this task.
+ * Returns true if a job exists for this tag.
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {Boolean}
  */
-- (BOOL)jobExistsForTask:(NSString *)task
+- (BOOL)jobExistsForTag:(NSString *)tag
 {
-    BOOL jobExists = [self.engine jobExistsForTask:task];
+    BOOL jobExists = [self.storage jobExistsForTag:tag];
     return jobExists;
 }
 
 /**
- * Returns true if the active job if for this task.
+ * Returns true if the active job if for this tag.
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {Boolean}
  */
-- (BOOL)jobIsActiveForTask:(NSString *)task
+- (BOOL)jobIsActiveForTag:(NSString *)tag
 {
-    BOOL jobIsActive = [self.activeTask length] > 0 && [self.activeTask isEqualToString:task];
+    BOOL jobIsActive = [self.activeJobTag length] > 0 && [self.activeJobTag isEqualToString:tag];
     return jobIsActive;
 }
 
 /**
- * Returns the list of jobs for this 
+ * Returns the next job for tag
  *
- * @param {NSString} Task label
+ * @param {NSString} job tag
  *
  * @return {NSArray}
  */
-- (NSDictionary *)nextJobForTask:(NSString *)task
+- (nullable EDQueueJob *)nextJobForTag:(NSString *)tag
 {
-    NSDictionary *nextJobForTask = [self.engine fetchJobForTask:task];
-    return nextJobForTask;
+    id<EDQueueStorageItem> item = [self.storage fetchNextJobForTag:tag validForDate:[NSDate date]];
+    return item.job;
 }
 
 /**
@@ -131,7 +130,10 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     if (!self.isRunning) {
         _isRunning = YES;
         [self tick];
-        [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
+
+        NSDictionary *object = @{ EDQueueNameKey : EDQueueDidStart };
+
+        [self postNotificationOnMainThread:object];
     }
 }
 
@@ -145,7 +147,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (self.isRunning) {
         _isRunning = NO;
-        [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStop, @"name", nil, @"data", nil] waitUntilDone:false];
+
+        NSDictionary *object = @{ EDQueueNameKey : EDQueueDidStop };
+        [self postNotificationOnMainThread:object];
     }
 }
 
@@ -159,7 +163,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  */
 - (void)empty
 {
-    [self.engine removeAllJobs];
+    [self.storage removeAllJobs];
+
+    [self postNotificationOnMainThread:@{ EDQueueNameKey : EDQueueDidDrain }];
 }
 
 
@@ -172,59 +178,101 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  */
 - (void)tick
 {
-    dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(gcd, ^{
-        if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
-            // Start job
-            _isActive = YES;
-            id job = [self.engine fetchJob];
-            self.activeTask = [(NSDictionary *)job objectForKey:@"task"];
-            
-            // Pass job to delegate
-            if ([self.delegate respondsToSelector:@selector(queue:processJob:completion:)]) {
-                [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
-                    [self processJob:job withResult:result];
-                    self.activeTask = nil;
-                }];
-            } else {
-                EDQueueResult result = [self.delegate queue:self processJob:job];
-                [self processJob:job withResult:result];
-                self.activeTask = nil;
+    dispatch_barrier_async(self.dispatchQueue, ^{
+
+        if (!self.isRunning) {
+            return;
+        }
+
+        if (self.isActive) {
+            return;
+        }
+
+        if ([self.storage jobCount] > 0) {
+
+            id<EDQueueStorageItem> storedJob = [self.storage fetchNextJobValidForDate:[NSDate date]];
+
+            if (!storedJob) {
+                __weak typeof(self) weakSelf = self;
+                NSTimeInterval nextTime = [self.storage fetchNextJobTimeInterval];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(nextTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakSelf performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
+                });
+
+                return;
             }
+
+            // Start job & Pass job to delegate
+            self.activeJobTag = storedJob.job.tag;
+            _isActive = YES;
+
+            [self.delegate queue:self processJob:storedJob.job completion:^(EDQueueResult result) {
+                [self processJob:storedJob withResult:result];
+                self.activeJobTag = nil;
+            }];
         }
     });
 }
 
-- (void)processJob:(NSDictionary*)job withResult:(EDQueueResult)result
+- (void)processJob:(id<EDQueueStorageItem>)storedJob withResult:(EDQueueResult)result
 {
     // Check result
     switch (result) {
         case EDQueueResultSuccess:
-            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidSucceed, @"name", job, @"data", nil] waitUntilDone:false];
-            [self.engine removeJob:[job objectForKey:@"id"]];
+
+            [self postNotificationOnMainThread:@{
+                                                 EDQueueNameKey : EDQueueJobDidSucceed,
+                                                 EDQueueDataKey : storedJob.job
+                                                 }];
+
+            [self.storage removeJob:storedJob];
+
             break;
+
         case EDQueueResultFail:
-            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil] waitUntilDone:true];
-            NSUInteger currentAttempt = [[job objectForKey:@"attempts"] intValue] + 1;
-            if (currentAttempt < self.retryLimit) {
-                [self.engine incrementAttemptForJob:[job objectForKey:@"id"]];
-            } else {
-                [self.engine removeJob:[job objectForKey:@"id"]];
+
+            [self postNotificationOnMainThread:@{
+                                                 EDQueueNameKey : EDQueueJobDidFail,
+                                                 EDQueueDataKey : storedJob.job
+                                                 }];
+
+            BOOL shouldRetry = NO;
+
+            if (storedJob.job.maxRetryCount == EDQueueJobInfiniteRetryCount) {
+                shouldRetry = YES;
+            } else if(storedJob.job.maxRetryCount > storedJob.attempts.integerValue) {
+                shouldRetry = YES;
             }
+
+            if (shouldRetry) {
+                [self.storage scheduleNextAttemptForJob:storedJob];
+            } else {
+                [self.storage removeJob:storedJob];
+            }
+
             break;
         case EDQueueResultCritical:
-            [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil] waitUntilDone:false];
+
+            [self postNotificationOnMainThread:@{
+                                                 EDQueueNameKey : EDQueueJobDidFail,
+                                                 EDQueueDataKey : storedJob.job
+                                                 }];
+
             [self errorWithMessage:@"Critical error. Job canceled."];
-            [self.engine removeJob:[job objectForKey:@"id"]];
+            [self.storage removeJob:storedJob];
+
             break;
     }
     
     // Clean-up
     _isActive = NO;
-    
+
     // Drain
-    if ([self.engine fetchJobCount] == 0) {
-        [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidDrain, @"name", nil, @"data", nil] waitUntilDone:false];
+    if ([self.storage jobCount] == 0) {
+
+        [self postNotificationOnMainThread:@{
+                                             EDQueueNameKey : EDQueueDidDrain,
+                                             }];
     } else {
         [self performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
     }
@@ -239,9 +287,13 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {void}
  */
-- (void)postNotification:(NSDictionary *)object
+- (void)postNotificationOnMainThread:(NSDictionary *)object
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:@"name"] object:[object objectForKey:@"data"]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:[object objectForKey:EDQueueNameKey]
+                                                            object:[object objectForKey:EDQueueDataKey]];
+    });
+
 }
 
 /**
@@ -257,3 +309,5 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
