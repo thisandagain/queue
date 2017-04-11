@@ -115,7 +115,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)start
 {
     if (!self.isRunning) {
-        self.activeQueues = [@[] mutableCopy];
         _isRunning = YES;
 
         [self tick];
