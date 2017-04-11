@@ -177,9 +177,11 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     for (NSString *queue in [self.engine allQueues]) {
         id job = [self.engine fetchJobForTaskName:queue excludeIDs:self.processingJobs];
-        [self markJobProcessing:job];
         
-        [self processJob:job];
+        if (job && job[@"id"]) {
+            [self markJobProcessing:job];
+            [self processJob:job];
+        }
     }
 }
 
