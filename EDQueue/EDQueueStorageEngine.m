@@ -135,12 +135,12 @@
  *
  * @return {uint}
  */
-- (NSUInteger)fetchJobCount
+- (NSUInteger)fetchJobCountForTask:(NSString *)task
 {
     __block NSUInteger count = 0;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue"];
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -155,6 +155,30 @@
 
 /**
  * Returns the oldest job from the datastore.
+ *
+ * @return {NSDictionary}
+ */
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task
+{
+    __block id job;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            job = [self _jobFromResultSet:rs];
+        }
+        
+        [rs close];
+    }];
+    
+    return job;
+}
+
+
+/**
+ * Returns the the job with the highest priority from the datastore.
  *
  * @return {NSDictionary}
  */
@@ -174,6 +198,30 @@
     }];
     
     return job;
+}
+
+/**
+ * Returns the all queues
+ *
+ * @return {NSArray}
+ */
+
+- (NSArray *)allQueues {
+    NSMutableArray *queues = [@[] mutableCopy];
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT task FROM queue"];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            NSString *queue = [rs stringForColumn:@"task"];
+            [queues addObject:queue];
+        }
+        
+        [rs close];
+    }];
+    
+    return queues;
 }
 
 /**

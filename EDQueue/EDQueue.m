@@ -79,7 +79,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (data == nil) data = @{};
     [self.engine createJob:data forTask:task];
-    [self tick];
+    [self tickWithQueue:task];
 }
 
 /**
@@ -130,7 +130,11 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (!self.isRunning) {
         _isRunning = YES;
-        [self tick];
+        
+        for(NSString *queue in [self.engine allQueues]) {
+            [self tickWithQueue:queue];
+        }
+
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }
@@ -170,14 +174,14 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  *
  * @return {void}
  */
-- (void)tick
+- (void)tickWithQueue:(NSString *)queue
 {
     dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(gcd, ^{
-        if (self.isRunning && !self.isActive && [self.engine fetchJobCount] > 0) {
+        if (self.isRunning && !self.isActive && [self.engine fetchJobCountForTask:queue] > 0) {
             // Start job
             _isActive = YES;
-            id job = [self.engine fetchJob];
+            id job = [self.engine fetchJobForTaskName:queue];
             self.activeTask = [(NSDictionary *)job objectForKey:@"task"];
             
             // Pass job to delegate
@@ -222,11 +226,12 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     // Clean-up
     _isActive = NO;
     
+    NSString *queue = job[@"task"];
     // Drain
-    if ([self.engine fetchJobCount] == 0) {
+    if ([self.engine fetchJobCountForTask:queue] == 0) {
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidDrain, @"name", nil, @"data", nil] waitUntilDone:false];
     } else {
-        [self performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
+        [self performSelectorOnMainThread:@selector(tickWithQueue:) withObject:queue waitUntilDone:false];
     }
 }
 
