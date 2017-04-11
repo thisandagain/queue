@@ -53,7 +53,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     if (self) {
         _engine     = [[EDQueueStorageEngine alloc] init];
         _retryLimit = 4;
-        _processingJobs = [@[] mutableCopy];
     }
     return self;
 }
@@ -116,6 +115,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (!self.isRunning) {
         _isRunning = YES;
+        if (!self.processingJobs) {
+            self.processingJobs = [@[] mutableCopy];
+        }
 
         [self tick];
 
