@@ -155,22 +155,6 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 #pragma mark - Private methods
 
-//- (BOOL)isQueueActive:(NSString *)queue {
-//    return [self.activeQueues containsObject:queue];
-//}
-//
-//- (void)markQueueActive:(NSString *)queue {
-//    if (![self.activeQueues containsObject:queue]) {
-//        [self.activeQueues addObject:queue];
-//    }
-//}
-//
-//- (void)markQueueInactive:(NSString *)queue {
-//    [self.activeQueues removeObjectIdenticalTo:queue];
-//}
-
-//---------
-
 - (void)markJobProcessing:(id)job {
     [self.processingJobs addObject: job[@"id"]];
 }
@@ -216,41 +200,43 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 - (void)processJob:(NSDictionary*)job withResult:(EDQueueResult)result
 {
-    // Check result
-    switch (result) {
-        case EDQueueResultSuccess:
-            [self performSelectorOnMainThread:@selector(postNotification:)
-                                   withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidSucceed, @"name", job, @"data", nil]
-                                waitUntilDone:false];
-            [self.engine removeJob:[job objectForKey:@"id"]];
-            
-            break;
-        case EDQueueResultFail:
-            [self performSelectorOnMainThread:@selector(postNotification:)
-                                   withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil]
-                                waitUntilDone:true];
-            
-            NSUInteger currentAttempt = [[job objectForKey:@"attempts"] intValue] + 1;
-            
-            if (currentAttempt < self.retryLimit) {
-                [self.engine incrementAttemptForJob:[job objectForKey:@"id"]];
-            } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Check result
+        switch (result) {
+            case EDQueueResultSuccess:
+                [self performSelectorOnMainThread:@selector(postNotification:)
+                                       withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidSucceed, @"name", job, @"data", nil]
+                                    waitUntilDone:false];
                 [self.engine removeJob:[job objectForKey:@"id"]];
-            }
-            
-            break;
-        case EDQueueResultCritical:
-            [self performSelectorOnMainThread:@selector(postNotification:)
-                                   withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil]
-                                waitUntilDone:false];
-            [self errorWithMessage:@"Critical error. Job canceled."];
-            [self.engine removeJob:[job objectForKey:@"id"]];
-            
-            break;
-    }
-    
-    [self removeJobFromProcessing:job];
-    [self processNextJob];
+                
+                break;
+            case EDQueueResultFail:
+                [self performSelectorOnMainThread:@selector(postNotification:)
+                                       withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil]
+                                    waitUntilDone:true];
+                
+                NSUInteger currentAttempt = [[job objectForKey:@"attempts"] intValue] + 1;
+                
+                if (currentAttempt < self.retryLimit) {
+                    [self.engine incrementAttemptForJob:[job objectForKey:@"id"]];
+                } else {
+                    [self.engine removeJob:[job objectForKey:@"id"]];
+                }
+                
+                break;
+            case EDQueueResultCritical:
+                [self performSelectorOnMainThread:@selector(postNotification:)
+                                       withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueJobDidFail, @"name", job, @"data", nil]
+                                    waitUntilDone:false];
+                [self errorWithMessage:@"Critical error. Job canceled."];
+                [self.engine removeJob:[job objectForKey:@"id"]];
+                
+                break;
+        }
+        
+        [self removeJobFromProcessing:job];
+        [self processNextJob];
+    });
 }
 
 - (void)processNextJob {
