@@ -77,7 +77,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 {
     if (data == nil) data = @{};
     [self.engine createJob:data forTask:task];
-    [self tickWithQueue:task];
+    [self tick];
 }
 
 /**
@@ -114,11 +114,10 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 - (void)start
 {
     if (!self.isRunning) {
+        self.activeQueues = [@[] mutableCopy];
         _isRunning = YES;
-        
-        for(NSString *queue in [self.engine allQueues]) {
-            [self tickWithQueue:queue];
-        }
+
+        [self tick];
 
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
@@ -165,7 +164,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 - (void)markQueueInactive:(NSString *)queue {
-    [self.activeQueues removeObject:queue];
+    [self.activeQueues removeObjectIdenticalTo:queue];
 }
 
 /**
@@ -174,26 +173,29 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
  * @return {void}
  */
 
-- (void)tickWithQueue:(NSString *)queue
+- (void)tick
 {
-    dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    dispatch_async(gcd, ^{
+    for (NSString *queue in [self.engine allQueues]) {
         if (self.isRunning && ![self isQueueActive:queue] && [self.engine fetchJobCountForTask:queue] > 0) {
-            // Start job
             [self markQueueActive:queue];
-            id job = [self.engine fetchJobForTaskName:queue];
             
-            // Pass job to delegate
-            if ([self.delegate respondsToSelector:@selector(queue:processJob:completion:)]) {
-                [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
+            dispatch_queue_t gcd = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+            dispatch_async(gcd, ^{
+                // Start job
+                id job = [self.engine fetchJobForTaskName:queue];
+                
+                // Pass job to delegate
+                if ([self.delegate respondsToSelector:@selector(queue:processJob:completion:)]) {
+                    [self.delegate queue:self processJob:job completion:^(EDQueueResult result) {
+                        [self processJob:job withResult:result];
+                    }];
+                } else {
+                    EDQueueResult result = [self.delegate queue:self processJob:job];
                     [self processJob:job withResult:result];
-                }];
-            } else {
-                EDQueueResult result = [self.delegate queue:self processJob:job];
-                [self processJob:job withResult:result];
-            }
+                }
+            });
         }
-    });
+    }
 }
 
 - (void)processJob:(NSDictionary*)job withResult:(EDQueueResult)result
@@ -226,10 +228,10 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     [self markQueueInactive:queue];
     
     // Drain
-    if ([self.engine fetchJobCountForTask:queue] == 0) {
+    if ([self.engine fetchJobCount] == 0) {
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidDrain, @"name", nil, @"data", nil] waitUntilDone:false];
     } else {
-        [self performSelectorOnMainThread:@selector(tickWithQueue:) withObject:queue waitUntilDone:false];
+        [self performSelectorOnMainThread:@selector(tick) withObject:nil waitUntilDone:false];
     }
 }
 

@@ -135,6 +135,29 @@
  *
  * @return {uint}
  */
+- (NSUInteger)fetchJobCount
+{
+    __block NSUInteger count = 0;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue"];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            count = [rs intForColumn:@"count"];
+        }
+        
+        [rs close];
+    }];
+    
+    return count;
+}
+
+/**
+ * Returns the total number of jobs within the datastore.
+ *
+ * @return {uint}
+ */
 - (NSUInteger)fetchJobCountForTask:(NSString *)task
 {
     __block NSUInteger count = 0;
@@ -215,7 +238,9 @@
         
         while ([rs next]) {
             NSString *queue = [rs stringForColumn:@"task"];
-            [queues addObject:queue];
+            if (![queues containsObject:queue]) {
+                [queues addObject:queue];
+            }
         }
         
         [rs close];
