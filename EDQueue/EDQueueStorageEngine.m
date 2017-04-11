@@ -176,6 +176,26 @@
     return count;
 }
 
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task excludeIDs:(NSArray *)ids
+{
+    __block id job;
+    NSString *idsString = [ids componentsJoinedByString:@","];
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? AND id NOT IN (?) ORDER BY id ASC LIMIT 1", task, idsString];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            job = [self _jobFromResultSet:rs];
+        }
+        
+        [rs close];
+    }];
+    
+    return job;
+}
+
+
 /**
  * Returns the oldest job from the datastore.
  *

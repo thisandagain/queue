@@ -30,7 +30,8 @@ extern NSString *const EDQueueDidDrain;
 @property (nonatomic, weak) id<EDQueueDelegate> delegate;
 
 @property (nonatomic, readonly) BOOL isRunning;
-@property (nonatomic, strong) NSMutableArray *activeQueues;
+//@property (nonatomic, strong) NSMutableArray *activeQueues;
+@property (nonatomic, strong) NSMutableArray *processingJobs;
 @property (nonatomic) NSUInteger retryLimit;
 
 - (void)enqueueWithData:(id)data forTask:(NSString *)task;
