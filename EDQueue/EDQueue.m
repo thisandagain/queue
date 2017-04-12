@@ -22,6 +22,8 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 @property (nonatomic) EDQueueStorageEngine *engine;
+@property (nonatomic) BOOL isTicking;
+
 //@property (nonatomic, readwrite) NSString *activeTask;
 
 @end
@@ -38,7 +40,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 + (EDQueue *)sharedInstance
 {
     static EDQueue *singleton = nil;
-    static dispatch_once_t once = 0;
+    static dispatch_once_t once;
     dispatch_once(&once, ^{
         singleton = [[self alloc] init];
     });
@@ -58,7 +60,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 - (void)dealloc
-{    
+{
     self.delegate = nil;
     _engine = nil;
 }
@@ -94,7 +96,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 /**
- * Returns the list of jobs for this 
+ * Returns the list of jobs for this
  *
  * @param {NSString} Task label
  *
@@ -116,11 +118,11 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     if (!self.isRunning) {
         _isRunning = YES;
         if (!self.processingJobs) {
-            self.processingJobs = [@[] mutableCopy];
+            self.processingJobs = [@{} mutableCopy];
         }
-
+        
         [self tick];
-
+        
         [self performSelectorOnMainThread:@selector(postNotification:) withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidStart, @"name", nil, @"data", nil] waitUntilDone:false];
     }
 }
@@ -156,15 +158,25 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 #pragma mark - Private methods
 
 - (void)markJobProcessing:(id)job {
-    [self.processingJobs addObject: job[@"id"]];
+    //TODO add job name as well
+    NSString *taskName = job[@"task"];
+    if (!self.processingJobs[taskName]) {
+        self.processingJobs[taskName] = [@[] mutableCopy];
+    }
+    
+    [self.processingJobs[taskName] addObject: job[@"id"]];
 }
 
 - (void)removeJobFromProcessing:(id)job {
-    [self.processingJobs removeObject:job[@"id"]];
+    //TODO add job name as well
+    NSString *taskName = job[@"task"];
+    if (self.processingJobs[taskName]) {
+        [self.processingJobs[taskName] removeObject:job[@"id"]];
+    }
 }
 
-- (BOOL)isJobProcessing:(id)job {
-    return [self.processingJobs containsObject:job[@"id"]];
+- (NSArray *)processingJobsForQueue:(NSString *)queue {
+    return self.processingJobs[queue];
 }
 
 /**
@@ -175,13 +187,28 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 - (void)tick
 {
-    for (NSString *queue in [self.engine allQueues]) {
-        id job = [self.engine fetchJobForTaskName:queue excludeIDs:self.processingJobs];
+    if (!self.isTicking) {
+        self.isTicking = true;
         
-        if (job && job[@"id"]) {
-            [self markJobProcessing:job];
-            [self processJob:job];
+        NSLog(@"*** ---------------- STARTED TICKING ---------------- ***");
+        NSLog(@"*** ### queue size: %d", [self.engine allQueues].count);
+        
+        for (NSString *queue in [self.engine allQueues]) {
+            id job = [self.engine fetchJobForTaskName:queue excludeIDs:[self processingJobsForQueue:queue]];
+            
+            NSLog(@"*** ### picked job with id: %@", job[@"id"]);
+            
+            if (job && job[@"id"]) {
+                [self markJobProcessing:job];
+                NSLog(@"*** ### NEW processing ids: %@", [[self processingJobsForQueue:queue] componentsJoinedByString:@", "]);
+                [self processJob:job];
+            }
         }
+        
+        self.isTicking = false;
+        NSLog(@"*** ---------------- FINISHED TICKING ------------- ***");
+    } else {
+        NSLog(@"********* IS TICKING");
     }
 }
 

@@ -179,10 +179,17 @@
 - (NSDictionary *)fetchJobForTaskName:(NSString *)task excludeIDs:(NSArray *)ids
 {
     __block id job;
-    NSString *idsString = [ids componentsJoinedByString:@","];
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? AND id NOT IN (?) ORDER BY id ASC LIMIT 1", task, idsString];
+        NSString *query = [NSString stringWithFormat:@"SELECT * FROM queue WHERE task = '%@' ORDER BY id ASC LIMIT 1", task];
+        if (ids.count > 0) {
+            NSString *idsString = [ids componentsJoinedByString:@", "];
+            query = [NSString stringWithFormat:@"SELECT * FROM queue WHERE task = '%@' AND id NOT IN (%@) ORDER BY id ASC LIMIT 1", task, idsString];
+        }
+        
+        FMResultSet *rs = [db executeQuery:query];
+        NSLog(@"*** QUERY: %@", query);
+        
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -299,12 +306,12 @@
 - (NSDictionary *)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *job = @{
-        @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-        @"task":        [rs stringForColumn:@"task"],
-        @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
-        @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-        @"stamp":       [rs stringForColumn:@"stamp"]
-    };
+                          @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
+                          @"task":        [rs stringForColumn:@"task"],
+                          @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
+                          @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
+                          @"stamp":       [rs stringForColumn:@"stamp"]
+                          };
     return job;
 }
 
