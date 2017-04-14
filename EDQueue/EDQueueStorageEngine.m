@@ -154,16 +154,41 @@
 }
 
 /**
- * Returns the oldest job from the datastore.
+ * Returns the total number of jobs within the datastore.
  *
- * @return {NSDictionary}
+ * @return {uint}
  */
-- (NSDictionary *)fetchJob
+- (NSUInteger)fetchJobCountForTask:(NSString *)task
+{
+    __block NSUInteger count = 0;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT count(id) AS count FROM queue WHERE task = ?", task];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            count = [rs intForColumn:@"count"];
+        }
+        
+        [rs close];
+    }];
+    
+    return count;
+}
+
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task excludeIDs:(NSArray *)ids
 {
     __block id job;
     
     [self.queue inDatabase:^(FMDatabase *db) {
-        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY id ASC LIMIT 1"];
+        NSString *query = [NSString stringWithFormat:@"SELECT * FROM queue WHERE task = '%@' ORDER BY id ASC LIMIT 1", task];
+        if (ids.count > 0) {
+            NSString *idsString = [ids componentsJoinedByString:@", "];
+            query = [NSString stringWithFormat:@"SELECT * FROM queue WHERE task = '%@' AND id NOT IN (%@) ORDER BY id ASC LIMIT 1", task, idsString];
+        }
+        
+        FMResultSet *rs = [db executeQuery:query];
+        
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
         while ([rs next]) {
@@ -174,6 +199,80 @@
     }];
     
     return job;
+}
+
+
+/**
+ * Returns the oldest job from the datastore.
+ *
+ * @return {NSDictionary}
+ */
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task
+{
+    __block id job;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue WHERE task = ? ORDER BY id ASC LIMIT 1", task];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            job = [self _jobFromResultSet:rs];
+        }
+        
+        [rs close];
+    }];
+    
+    return job;
+}
+
+
+/**
+ * Returns the the job with the highest priority from the datastore.
+ *
+ * @return {NSDictionary}
+ */
+- (NSDictionary *)fetchJob
+{
+    __block id job;
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT * FROM queue ORDER BY task ASC LIMIT 1"];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            job = [self _jobFromResultSet:rs];
+        }
+        
+        [rs close];
+    }];
+    
+    return job;
+}
+
+/**
+ * Returns the all queues
+ *
+ * @return {NSArray}
+ */
+
+- (NSArray *)allQueues {
+    NSMutableArray *queues = [@[] mutableCopy];
+    
+    [self.queue inDatabase:^(FMDatabase *db) {
+        FMResultSet *rs = [db executeQuery:@"SELECT task FROM queue"];
+        [self _databaseHadError:[db hadError] fromDatabase:db];
+        
+        while ([rs next]) {
+            NSString *queue = [rs stringForColumn:@"task"];
+            if (![queues containsObject:queue]) {
+                [queues addObject:queue];
+            }
+        }
+        
+        [rs close];
+    }];
+    
+    return queues;
 }
 
 /**
@@ -206,12 +305,12 @@
 - (NSDictionary *)_jobFromResultSet:(FMResultSet *)rs
 {
     NSDictionary *job = @{
-        @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
-        @"task":        [rs stringForColumn:@"task"],
-        @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
-        @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
-        @"stamp":       [rs stringForColumn:@"stamp"]
-    };
+                          @"id":          [NSNumber numberWithInt:[rs intForColumn:@"id"]],
+                          @"task":        [rs stringForColumn:@"task"],
+                          @"data":        [NSJSONSerialization JSONObjectWithData:[[rs stringForColumn:@"data"] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil],
+                          @"attempts":    [NSNumber numberWithInt:[rs intForColumn:@"attempts"]],
+                          @"stamp":       [rs stringForColumn:@"stamp"]
+                          };
     return job;
 }
 
