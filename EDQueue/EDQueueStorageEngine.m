@@ -188,7 +188,6 @@
         }
         
         FMResultSet *rs = [db executeQuery:query];
-        NSLog(@"*** QUERY: %@", query);
         
         [self _databaseHadError:[db hadError] fromDatabase:db];
         
