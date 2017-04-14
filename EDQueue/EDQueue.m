@@ -146,7 +146,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 - (BOOL)canProcessJobForQueue:(NSString *)queue {
-    return [self numberOfProcessingJobsForQueue:queue] <= [self maxConcurrentJobsPerQueue];
+    return [self maxConcurrentJobsPerQueue] >= [self numberOfProcessingJobsForQueue:queue];
 }
 
 - (int)numberOfProcessingJobsForQueue:(NSString *)queue {
@@ -164,7 +164,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 - (void)tick {
-    if (!self.isTicking) return;
+    if (self.isTicking) return;
     
     self.isTicking = true;
 
