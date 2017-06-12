@@ -37,6 +37,7 @@ extern NSString *const EDQueueDidDrain;
 - (void)start;
 - (void)stop;
 - (void)empty;
+- (NSInteger)leftJobsCount;
 
 @end
 

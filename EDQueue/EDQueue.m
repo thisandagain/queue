@@ -167,7 +167,7 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
     if (self.isTicking) return;
     
     self.isTicking = true;
-
+    
     for (NSString *queue in [self.engine allQueues]) {
         if ([self canProcessJobForQueue:queue]) {
             id job = [self fetchJobForQueue:queue];
@@ -184,6 +184,10 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 
 - (id)fetchJobForQueue:(NSString *)queue {
     return [self.engine fetchJobForTaskName:queue excludeIDs:[self processingJobsForQueue:queue]];
+}
+
+- (NSInteger) leftJobsCount {
+    return [self.engine fetchJobCount];
 }
 
 - (BOOL)isJobValid:(id)job {
@@ -248,7 +252,9 @@ NSString *const EDQueueDidDrain = @"EDQueueDidDrain";
 }
 
 - (void)processNextJob {
-    if ([self.engine fetchJobCount] == 0) {
+//    NSLog(@"****** processing next job, left jobs: %d", [self leftJobsCount]);
+    
+    if ([self leftJobsCount] == 0) {
         [self performSelectorOnMainThread:@selector(postNotification:)
                                withObject:[NSDictionary dictionaryWithObjectsAndKeys:EDQueueDidDrain, @"name", nil, @"data", nil]
                             waitUntilDone:false];
