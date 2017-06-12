@@ -19,7 +19,10 @@
 - (void)removeJob:(NSNumber *)jid;
 - (void)removeAllJobs;
 - (NSUInteger)fetchJobCount;
-- (NSDictionary *)fetchJob;
+- (NSUInteger)fetchJobCountForTask:(NSString *)task;
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task excludeIDs:(NSArray *)ids;
+- (NSDictionary *)fetchJobForTaskName:(NSString *)task;
 - (NSDictionary *)fetchJobForTask:(id)task;
+- (NSArray *)allQueues;
 
 @end
